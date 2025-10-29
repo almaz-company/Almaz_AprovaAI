@@ -1,0 +1,45 @@
+# http://editorconfig.org
+# EditorConfig: garante consistência no estilo de código entre editores e IDEs
+
+# Regras padrão para todos os arquivos
+[*]
+indent_style = space              # Usa espaços (em vez de tabs)
+indent_size = 2                   # Indentação de 2 espaços (ideal para JS, TS, React, Go)
+end_of_line = lf                  # Quebra de linha padrão Unix (LF)
+charset = utf-8                   # Codificação UTF-8 universal
+trim_trailing_whitespace = true   # Remove espaços em branco no fim das linhas
+insert_final_newline = true       # Garante quebra de linha ao final dos arquivos
+
+# JSON — evita quebras de linha extras (importante para formatação automática)
+[*.json]
+insert_final_newline = false
+
+# Arquivos minificados — mantêm formato original
+[**.min.js]
+indent_style = unset
+insert_final_newline = false
+
+# Makefile — usa tabs (padrão obrigatório do Make)
+[Makefile]
+indent_style = tab
+
+# Markdown — mantém espaços no fim (para forçar quebra de linha)
+[*.md]
+trim_trailing_whitespace = false
+
+# YAML — mantém indentação com 2 espaços (boas práticas para configs e pipelines)
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+
+# Arquivos Go — segue padrão oficial do Go (tabs)
+[*.go]
+indent_style = tab
+indent_size = 4
+insert_final_newline = true
+
+# Arquivos de configuração (env, ignore, rc)
+[*.{env,rc,gitignore,prettierrc,eslintrc}]
+end_of_line = lf
+insert_final_newline = true
