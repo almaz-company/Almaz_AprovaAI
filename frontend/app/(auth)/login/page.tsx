@@ -52,7 +52,7 @@ export default function Login() {
 
   return (
     <SignInPage
-      heroImageSrc="https://res.cloudinary.com/dx1659yxu/image/upload/v1760451243/linda-mulher-comprando-um-carro_lp9oo0.jpg"
+      heroImageSrc="https://res.cloudinary.com/dotmxzn47/image/upload/v1752859202/1d9f565c5a617c8a11116594cd87719ac1dbf5a9_sww5r8.jpg"
       onSignIn={onSubmit}
       onResetPassword={handleResetPassword}
       onCreateAccount={handleCreateAccount}

@@ -42,6 +42,10 @@ const getStatusColor = (status: string) => {
     conteudo_pendente: "#3b82f6", // blue-500
     conteudo_aprovado: "#22c55e",
     conteudo_rejeitado: "#ef4444",
+    pendente: "#f59e0b",
+    em_revisao: "#3b82f6",
+    aprovado: "#22c55e",
+    rejeitado: "#ef4444",
   };
   return colors[status] || "#6b7280"; // gray-500
 };
@@ -159,7 +163,7 @@ export function MonthCalendarView({
                               className={cn(
                                 "group cursor-pointer px-2 py-1 rounded text-xs flex items-center gap-1.5 transition-all",
                                 snapshot.isDragging &&
-                                  "shadow-lg ring-2 ring-blue-400"
+                                  "shadow-lg ring-2 ring-blue-800 hover:text-white"
                               )}
                               style={{
                                 backgroundColor: `${color}20`,
@@ -171,13 +175,7 @@ export function MonthCalendarView({
                                 className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                                 style={{ backgroundColor: color }}
                               />
-                              <span className="truncate text-slate-700 font-medium text-[11px]">
-                                {post.publish_date &&
-                                  format(
-                                    new Date(post.publish_date),
-                                    "HH:mm"
-                                  )}
-                              </span>
+                              
                               <span className="truncate text-slate-600 text-[11px]">
                                 {post.title}
                               </span>

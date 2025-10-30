@@ -61,6 +61,10 @@ const getStatusConfig = (status: string) => {
       icon: CheckCircle,
     },
     conteudo_rejeitado: { color: "bg-red-100 text-red-800", icon: XCircle },
+    pendente: { color: "bg-amber-100 text-amber-800", icon: Clock },
+    em_revisao: { color: "bg-blue-100 text-blue-800", icon: AlertCircle },
+    aprovado: { color: "bg-green-100 text-green-800", icon: CheckCircle },
+    rejeitado: { color: "bg-red-100 text-red-800", icon: XCircle },
   };
   return (
     configs[status] || { color: "bg-gray-100 text-gray-800", icon: AlertCircle }
@@ -172,12 +176,7 @@ export function ScheduleView({
                       className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-slate-200"
                     >
                       <div className="flex items-start gap-4">
-                        {/* Horário */}
-                        <div className="flex-shrink-0 w-16 text-center">
-                          <div className="text-2xl font-bold text-slate-900">
-                            {format(new Date(post.publish_date), "HH:mm")}
-                          </div>
-                        </div>
+                      
 
                         {/* Conteúdo */}
                         <div className="flex-1 min-w-0">

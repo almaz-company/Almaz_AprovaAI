@@ -29,6 +29,10 @@ const getStatusColor = (status: string) => {
     conteudo_pendente: "#3b82f6", // blue-500
     conteudo_aprovado: "#22c55e",
     conteudo_rejeitado: "#ef4444",
+    pendente: "#f59e0b",
+    em_revisao: "#3b82f6",
+    aprovado: "#22c55e",
+    rejeitado: "#ef4444",
   };
   return colors[status] || "#6b7280"; // gray-500 fallback
 };
@@ -113,12 +117,8 @@ export function DayCalendarView({
                                   }}
                                 >
                                   <div className="font-semibold mb-1 text-sm">
-                                    {format(
-                                      new Date(post.publish_date!),
-                                      "HH:mm",
-                                      { locale: ptBR }
-                                    )}{" "}
-                                    - {post.title}
+                                    
+                                    {post.title}
                                   </div>
                                   <div className="text-sm text-slate-600 line-clamp-2">
                                     {post.content || post.especificacao}

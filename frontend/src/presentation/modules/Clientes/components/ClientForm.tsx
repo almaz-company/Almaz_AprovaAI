@@ -47,7 +47,6 @@ type ClientFormProps = {
   onSaveRedirect?: boolean;
 };
 
-
 export default function ClientForm({
   client,
   isOpen,
@@ -72,7 +71,10 @@ export default function ClientForm({
   const [slugChecking, setSlugChecking] = useState(false);
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
-  const [logoPreview, setLogoPreview] = useState<{ url?: string; name?: string } | null>(null);
+  const [logoPreview, setLogoPreview] = useState<{
+    url?: string;
+    name?: string;
+  } | null>(null);
 
   useEffect(() => {
     if (client) {
@@ -173,7 +175,9 @@ export default function ClientForm({
         onClose();
       }
     } catch (e: any) {
-      toast.error("Erro ao salvar cliente", { description: e?.message || String(e) });
+      toast.error("Erro ao salvar cliente", {
+        description: e?.message || String(e),
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -186,8 +190,11 @@ export default function ClientForm({
         return;
       }
       setLogoUploading(true);
-      const logosBucket = process.env.NEXT_PUBLIC_SUPABASE_LOGOS_BUCKET || "logos";
-      const info: UploadedInfo = await uploadToStorage(file, user.id, { bucket: logosBucket });
+      const logosBucket =
+        process.env.NEXT_PUBLIC_SUPABASE_LOGOS_BUCKET || "logos";
+      const info: UploadedInfo = await uploadToStorage(file, user.id, {
+        bucket: logosBucket,
+      });
       await saveFileMetadata(info, user.id);
 
       if (!info.publicUrl) {
@@ -202,7 +209,9 @@ export default function ClientForm({
       setFormData((prev) => ({ ...prev, logo_url: info.publicUrl }));
       toast.success("Logo enviada com sucesso");
     } catch (e: any) {
-      toast.error("Erro ao enviar logo", { description: e?.message || String(e) });
+      toast.error("Erro ao enviar logo", {
+        description: e?.message || String(e),
+      });
     } finally {
       setLogoUploading(false);
     }
@@ -223,104 +232,135 @@ export default function ClientForm({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-[#0a2540]">
-            {client ? "Editar Cliente" : "Novo Cliente"}
-          </DialogTitle>
-        </DialogHeader>
+   <Dialog open={isOpen} onOpenChange={onClose}>
+  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto space-y-8">
+    <DialogHeader>
+      <DialogTitle className="text-2xl font-bold text-[#0a2540]">
+        {client ? "Editar Cliente" : "Novo Cliente"}
+      </DialogTitle>
+    </DialogHeader>
 
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+    {error && (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    )}
 
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          {/* Informações Básicas */}
-          <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-slate-900">Informações Básicas</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="company_name">Nome da Empresa *</Label>
-                <Input
-                  id="company_name"
-                  value={formData.company_name}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      company_name: e.target.value,
-                      slug: generateSlug(e.target.value),
-                    })
-                  }
-                  required
-                  placeholder="Ex: Empresa XYZ"
-                />
-              </div>
-            </div>
+    <form onSubmit={handleSubmit} className="space-y-8 pt-2">
+      {/* Informações Básicas */}
+      <section className="space-y-6">
+        <h3 className="text-lg font-semibold text-slate-900">
+          Informações Básicas
+        </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="slug" className="flex items-center gap-2">
-                Slug (URL do Portal)
-                {slugChecking && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
-                {!slugChecking && slugAvailable && <CheckCircle className="w-4 h-4 text-green-500" />}
-                {!slugChecking && slugAvailable === false && <XCircle className="w-4 h-4 text-red-500" />}
-              </Label>
-              <Input
-                id="slug"
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                placeholder="empresa-xyz"
-              />
-              {slugError && <p className="text-sm text-red-600 mt-1">{slugError}</p>}
-            </div>
-          </section>
-
-          {/* Logo do Cliente */}
-          <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-slate-900">Logo do Cliente</h3>
-            <FileUploadZone
-              onFileUpload={handleLogoUpload}
-              onRemoveFile={handleRemoveLogo}
-              uploadedFile={logoPreview || (formData.logo_url ? { url: formData.logo_url, name: "logo" } : undefined)}
-              uploading={logoUploading}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Nome da empresa */}
+          <div className="space-y-2">
+            <Label htmlFor="company_name">Nome da Empresa *</Label>
+            <Input
+              id="company_name"
+              value={formData.company_name}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  company_name: e.target.value,
+                  slug: generateSlug(e.target.value),
+                })
+              }
+              required
+              placeholder="Nome da Empresa"
+              className="w-full"
             />
-          </section>
+          </div>
 
-          <DialogFooter>
-            <Button variant="outline" type="button" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting || slugChecking} className="bg-[#053665] hover:bg-[#052244]">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Salvando...
-                </>
-              ) : client ? (
-                "Salvar Alterações"
-              ) : (
-                "Criar Cliente"
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          {/* Email */}
+          <div className="space-y-2">
+            <Label htmlFor="email">Email *</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              required
+              className="w-full"
+            />
+          </div>
+        </div>
+
+        {/* Slug */}
+        <div className="space-y-2">
+          <Label htmlFor="slug" className="flex items-center gap-2">
+            Slug (URL do Portal)
+            {slugChecking && (
+              <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+            )}
+            {!slugChecking && slugAvailable && (
+              <CheckCircle className="w-4 h-4 text-green-500" />
+            )}
+            {!slugChecking && slugAvailable === false && (
+              <XCircle className="w-4 h-4 text-red-500" />
+            )}
+          </Label>
+          <Input
+            id="slug"
+            value={formData.slug}
+            onChange={(e) =>
+              setFormData({ ...formData, slug: e.target.value })
+            }
+            placeholder="empresa-xyz"
+            className="w-full"
+          />
+          {slugError && (
+            <p className="text-sm text-red-600 mt-1">{slugError}</p>
+          )}
+        </div>
+      </section>
+
+      {/* Logo do Cliente */}
+      <section className="space-y-4">
+        <h3 className="text-lg font-semibold text-slate-900">
+          Logo do Cliente
+        </h3>
+        <FileUploadZone
+          onFileUpload={handleLogoUpload}
+          onRemoveFile={handleRemoveLogo}
+          uploadedFile={
+            logoPreview ||
+            (formData.logo_url
+              ? { url: formData.logo_url, name: "logo" }
+              : undefined)
+          }
+          uploading={logoUploading}
+        />
+      </section>
+
+      <DialogFooter className="space-x-4 pt-2">
+        <Button variant="outline" type="button" onClick={onClose}>
+          Cancelar
+        </Button>
+        <Button
+          type="submit"
+          disabled={isSubmitting || slugChecking}
+          className="bg-[#053665] hover:bg-[#052244]"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Salvando...
+            </>
+          ) : client ? (
+            "Salvar Alterações"
+          ) : (
+            "Criar Cliente"
+          )}
+        </Button>
+      </DialogFooter>
+    </form>
+  </DialogContent>
+</Dialog>
+
   );
 }

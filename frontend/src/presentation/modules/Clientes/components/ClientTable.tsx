@@ -1,4 +1,5 @@
-﻿"use client";
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +19,7 @@ type ClientType = {
   company_name: string;
   email?: string;
   logo_url?: string;
+  slug?: string;
 };
 
 type ClientTableProps = {
@@ -77,6 +79,7 @@ export default function ClientTable({
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50">
             <th className="text-left p-3 text-sm font-semibold text-slate-700">Cliente</th>
+            <th className="text-left p-3 text-sm font-semibold text-slate-700">Preview</th>
             <th className="text-right p-3 text-sm font-semibold text-slate-700">Ações</th>
           </tr>
         </thead>
@@ -97,6 +100,20 @@ export default function ClientTable({
                     <p className="text-xs text-slate-500">{client.email}</p>
                   </div>
                 </div>
+              </td>
+              <td className="p-3">
+                {client.slug ? (
+                  <a
+                    href={`/preview/${client.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    Abrir link público
+                  </a>
+                ) : (
+                  <span className="text-slate-400 text-sm">—</span>
+                )}
               </td>
               <td className="p-3 text-right">
                 <DropdownMenu>

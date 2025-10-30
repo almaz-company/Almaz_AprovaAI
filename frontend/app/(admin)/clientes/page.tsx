@@ -30,6 +30,7 @@ type ClientType = {
   logo_url?: string;
   status?: string;
   industry?: string;
+  slug?: string;
 };
 
 export default function ClientsPage() {
@@ -209,7 +210,7 @@ export default function ClientsPage() {
             client={editingClient}
             isOpen={showForm}
             onClose={handleFormClose}
-            onSaveRedirect={true}
+            onSaveRedirect={false}
           />
         )}
       </div>

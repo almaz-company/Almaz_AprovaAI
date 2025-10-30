@@ -38,6 +38,10 @@ const getStatusColor = (status: string) => {
     conteudo_pendente: "#3b82f6", // blue-500
     conteudo_aprovado: "#22c55e",
     conteudo_rejeitado: "#ef4444",
+    pendente: "#f59e0b",
+    em_revisao: "#3b82f6",
+    aprovado: "#22c55e",
+    rejeitado: "#ef4444",
   };
   return colors[status] || "#6b7280"; // gray-500
 };
@@ -155,7 +159,7 @@ export function WeekCalendarView({
                                     className={cn(
                                       "cursor-pointer px-2 py-1 rounded text-xs transition-all",
                                       snapshot.isDragging &&
-                                        "shadow-lg ring-2 ring-blue-400"
+                                        "shadow-lg ring-2 ring-blue-400 hover:text-white"
                                     )}
                                     style={{
                                       backgroundColor: `${color}20`,
@@ -164,10 +168,7 @@ export function WeekCalendarView({
                                     }}
                                   >
                                     <div className="font-medium text-slate-700 truncate">
-                                      {format(
-                                        new Date(post.publish_date!),
-                                        "HH:mm"
-                                      )}{" "}
+                                     
                                       - {post.title}
                                     </div>
                                   </div>

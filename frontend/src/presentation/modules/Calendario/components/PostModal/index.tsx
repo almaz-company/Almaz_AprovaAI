@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -85,6 +86,7 @@ const getStatusConfig = (status: string) => {
 
 // ---------- Componente ----------
 export function PostModal({ post, isOpen, onClose, onUpdate }: PostModalProps) {
+  const router = useRouter();
   useEffect(() => {
     if (!isOpen) {
       // Resetar estados se necessário
@@ -237,6 +239,11 @@ export function PostModal({ post, isOpen, onClose, onUpdate }: PostModalProps) {
               </div>
             </div>
           )}
+          <div className="flex justify-end mt-4">
+            <Button variant="outline" onClick={() => router.push(`/upload?postId=${post.id}`)}>
+              Abrir upload de mídia
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
