@@ -133,17 +133,7 @@ function UploadPageContent() {
       toast.success("Post criado com sucesso! Redirecionando para Posts...");
       router.push("/posts");
       return;
-
-      if (formData.client_id) {
-        const { data: cli, error: cliErr } = await supabase.from("clients").select("slug").eq("id", formData.client_id).single();
-        if (cliErr) throw cliErr;
-        if (cli?.slug) {
-          toast.success("Tema enviado! Redirecionando para aprovação...");
-          router.push(`/preview/${cli.slug}`);
-          return;
-        }
-      }
-      toast.success("Tema enviado! Selecione um cliente para gerar o link de aprovação.");
+      
     } catch (err: any) {
       toast.error("Erro ao salvar tema", { description: err?.message || String(err) });
     } finally {
