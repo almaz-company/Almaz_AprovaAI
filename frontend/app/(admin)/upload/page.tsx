@@ -130,6 +130,10 @@ function UploadPageContent() {
         if (linkError) throw linkError;
       }
 
+      toast.success("Post criado com sucesso! Redirecionando para Posts...");
+      router.push("/posts");
+      return;
+
       if (formData.client_id) {
         const { data: cli, error: cliErr } = await supabase.from("clients").select("slug").eq("id", formData.client_id).single();
         if (cliErr) throw cliErr;

@@ -82,7 +82,7 @@ export default function SignUp() {
   });
 
   const handleSignIn = React.useCallback(() => {
-    router.push("/login");
+    router.push("/");
   }, [router]);
 
   // ============================
