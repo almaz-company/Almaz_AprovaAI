@@ -423,21 +423,21 @@ function UploadPageContent() {
                 </CardContent>
               </Card>
               {/* Detalhes de Publicação */}
-              <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
-                <CardHeader className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <CardTitle className="flex items-center gap-2 text-[#1B4B7C] text-lg font-semibold tracking-tight">
-                    <Calendar className="w-5 h-5 text-[#1B4B7C]" />
+              <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 rounded-2xl">
+                <CardHeader className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <CardTitle className="flex items-center gap-2 text-[#1B4B7C] text-base font-semibold tracking-tight">
+                    <Calendar className="w-4 h-4 text-[#1B4B7C]" />
                     Detalhes de Publicação
                   </CardTitle>
-                  <span className="text-xs text-slate-400 uppercase tracking-wider font-medium">
+                  <span className="text-[11px] text-slate-400 uppercase tracking-wider font-medium">
                     Campos obrigatórios marcados com *
                   </span>
                 </CardHeader>
 
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 pt-5">
                   {/* Canal */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <div className="col-span-1">
+                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                       Canal <span className="text-red-500">*</span>
                     </label>
                     <Select
@@ -446,7 +446,7 @@ function UploadPageContent() {
                         handleInputChange("social_network", v)
                       }
                     >
-                      <SelectTrigger className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all">
+                      <SelectTrigger className="w-full px-4 h-10 text-[14px] rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50">
                         <SelectValue placeholder="Selecionar canal" />
                       </SelectTrigger>
                       <SelectContent>
@@ -460,8 +460,8 @@ function UploadPageContent() {
                   </div>
 
                   {/* Tipo de conteúdo */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <div className="col-span-1">
+                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                       Tipo de Conteúdo <span className="text-red-500">*</span>
                     </label>
                     <Select
@@ -470,7 +470,7 @@ function UploadPageContent() {
                         handleInputChange("tipo_conteudo", v)
                       }
                     >
-                      <SelectTrigger className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all">
+                      <SelectTrigger className="w-full px-4 h-10 text-[14px] rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50">
                         <SelectValue placeholder="Selecionar formato" />
                       </SelectTrigger>
                       <SelectContent>
@@ -483,33 +483,16 @@ function UploadPageContent() {
                     </Select>
                   </div>
 
-                  {/* Data e hora */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Data e Hora da Publicação{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <Input
-                      type="datetime-local"
-                      value={formData.publish_date}
-                      onChange={(e) =>
-                        handleInputChange("publish_date", e.target.value)
-                      }
-                      required
-                      className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all"
-                    />
-                  </div>
-
                   {/* Prioridade */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <div className="col-span-1">
+                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                       Prioridade
                     </label>
                     <Select
                       value={formData.priority}
                       onValueChange={(v) => handleInputChange("priority", v)}
                     >
-                      <SelectTrigger className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all">
+                      <SelectTrigger className="w-full px-4 h-10 text-[14px] rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50">
                         <SelectValue placeholder="Selecionar prioridade" />
                       </SelectTrigger>
                       <SelectContent>
@@ -522,7 +505,7 @@ function UploadPageContent() {
 
                   {/* Cliente */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">
                       Cliente
                     </label>
                     <Select
@@ -531,7 +514,7 @@ function UploadPageContent() {
                         handleInputChange("client_id", v === "none" ? "" : v)
                       }
                     >
-                      <SelectTrigger className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all">
+                      <SelectTrigger className=" w-60 px-4 h-10 text-[14px] rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50">
                         <SelectValue placeholder="Selecionar cliente" />
                       </SelectTrigger>
                       <SelectContent>
