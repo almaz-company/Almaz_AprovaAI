@@ -38,6 +38,7 @@ type Post = {
   tema?: string;
   especificacao?: string;
   content?: string;
+  client_name?: string;
 };
 
 type PostModalProps = {
@@ -45,6 +46,7 @@ type PostModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onUpdate: () => void;
+  onClientClick?: (name: string) => void;
 };
 
 // ---------- Helpers ----------
@@ -86,7 +88,7 @@ const getStatusConfig = (status: string) => {
 };
 
 // ---------- Componente ----------
-export function PostModal({ post, isOpen, onClose, onUpdate }: PostModalProps) {
+export function PostModal({ post, isOpen, onClose, onUpdate, onClientClick }: PostModalProps) {
   const router = useRouter();
   useEffect(() => {
     if (!isOpen) {
@@ -128,6 +130,15 @@ export function PostModal({ post, isOpen, onClose, onUpdate }: PostModalProps) {
             {getSocialIcon(post.social_network)}
             {post.title}
           </DialogTitle>
+          {post.client_name && (
+            <button
+              type="button"
+              className="text-sm text-slate-500 mt-1 text-left hover:underline"
+              onClick={() => onClientClick?.(post.client_name as string)}
+            >
+              Cliente: {post.client_name}
+            </button>
+          )}
         </DialogHeader>
 
         {/* Corpo */}

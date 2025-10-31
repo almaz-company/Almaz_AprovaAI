@@ -30,6 +30,7 @@ type Post = {
   publish_date: string | Date;
   priority?: string;
   status: string;
+  client_name?: string;
 };
 
 type ListViewProps = {
@@ -37,6 +38,7 @@ type ListViewProps = {
   onPostClick: (post: Post) => void;
   loading?: boolean;
   onStatusUpdate?: () => void;
+  onClientClick?: (name: string) => void;
 };
 
 // ===== Ícones das redes =====
@@ -88,6 +90,7 @@ export function ListView({
   onPostClick,
   loading = false,
   onStatusUpdate,
+  onClientClick,
 }: ListViewProps) {
   // Atualização de status via API
   const handleStatusChange = async (postId: string, newStatus: string) => {
@@ -197,6 +200,19 @@ export function ListView({
                 <div className="flex items-center justify-between">
                   {/* Informações da postagem */}
                   <div className="flex items-center gap-4 text-sm text-slate-500">
+                    {post.client_name && (
+                      <Badge
+                        variant="outline"
+                        className="max-w-[200px] truncate hover:bg-slate-100 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onClientClick?.(post.client_name as string);
+                        }}
+                        title={post.client_name}
+                      >
+                        {post.client_name}
+                      </Badge>
+                    )}
                     <Badge variant="outline" className="flex items-center gap-1">
                       {getSocialIcon(post.social_network)}
                       {post.social_network}

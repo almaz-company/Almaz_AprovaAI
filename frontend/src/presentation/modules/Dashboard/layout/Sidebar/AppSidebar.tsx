@@ -11,6 +11,7 @@ import { othersItems } from "./links/OthersItems";
 import { NavItem } from "./types";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import Image from "next/image";
 
 const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
@@ -232,17 +233,17 @@ const AppSidebar = () => {
        <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img
+              <Image
                 className="dark:hidden"
-                src={encodeURI("/images/logo/Grota_logo horizontal positivo.png")}
+                src={encodeURI("https://res.cloudinary.com/dotmxzn47/image/upload/v1747757959/Prancheta_1_tqouze.png")}
                 onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
                 alt="Logo"
-                width={150}
-                height={40}
+                width={90}
+                height={90}
               />
-              <img
+              <Image
                 className="hidden dark:block"
-                src={encodeURI("/images/logo/Grota_logo horizontal negativo.png")}
+                src={encodeURI("https://res.cloudinary.com/dotmxzn47/image/upload/v1747757959/Prancheta_1_tqouze.png")}
                 onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
                 alt="Logo"
                 width={150}
@@ -250,7 +251,7 @@ const AppSidebar = () => {
               />
             </>
           ) : (
-            <img
+            <Image
               src={
                 effectiveTheme === "dark"
                   ? "/images/logo/Símbolo negativo.png" // versão branca
@@ -314,6 +315,16 @@ const AppSidebar = () => {
           <LogOut className="w-4 h-4" />
           Sair
         </Button>
+      </div>
+
+      <div className="border-t p-4">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Versão BETA v1.1.2</span>
+          <div className="flex items-center gap-1">
+            <div className="h-2 w-2 rounded-full bg-green-500" />
+            <span>Online</span>
+          </div>
+        </div>
       </div>
     </aside>
   );

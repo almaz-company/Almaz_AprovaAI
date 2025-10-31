@@ -10,6 +10,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const allowed = ["status", "title", "publish_date", "social_network", "priority", "client_id", "tema", "especificacao", "content"]
     const payload: Record<string, any> = {}
     for (const k of allowed) if (k in body) payload[k] = body[k]
+    if (typeof payload.status === 'string') {
+      // Normaliza novos status do board para os usados no banco
+      if (payload.status === 'concluido') payload.status = 'aprovado'
+      else if (payload.status === 'em_progresso') payload.status = 'em_revisao'
+      else if (payload.status === 'pendente') payload.status = 'pendente'
+    }
     if (Object.keys(payload).length === 0) {
       return NextResponse.json({ error: "Nada para atualizar" }, { status: 400 })
     }

@@ -9,26 +9,16 @@ export const navItems: NavItem[] = [
     subItems: [{ name: "Visao Geral", path: "/visao-geral", pro: false },],
   },
   {
-    name: "calendario Editoral",
-    icon: <Car/>,
-    subItems: [
-      { 
-        name: "Calendario", 
-        path: "/calendario", 
-        pro: 
-        false }],
-  },
-  {
-    name: "Gestão de Clientes",
+    name: "Automação",
     icon: <Users />,
     subItems: [
       { name: 
-        "Gestão de Clientes", 
+        "Clientes", 
         path: "/clientes", 
         pro: false 
       },
       { name: 
-        "Gestao de Posts", 
+        "Posts", 
         path: "/posts", 
         pro: false 
       },
@@ -37,7 +27,11 @@ export const navItems: NavItem[] = [
         path: "/upload", 
         pro: false 
       },
-      
+      { name: 
+        "Calendario", 
+        path: "/calendario", 
+        pro: false 
+      },
     ],
   },
 ];
