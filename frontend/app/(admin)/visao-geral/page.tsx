@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -8,7 +10,6 @@ import { ptBR } from "date-fns/locale";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -28,14 +29,9 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
 import { listClients } from "@/lib/clients";
 import { toast } from "sonner";
-import {
-  Activity,
-  BarChart3,
-  CheckCircle2,
-  Clock,
-  PlusCircle,
-  Users,
-} from "lucide-react";
+import { Activity, BarChart3, CheckCircle2, Clock, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileDown, FileSpreadsheet, FileText } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -77,6 +73,248 @@ export default function Painel() {
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
+
+  function downloadBlob(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  async function handleExportPDF() {
+    try {
+      const { jsPDF } = await import("jspdf")
+      await import("jspdf-autotable")
+
+      const doc = new jsPDF()
+      const now = new Date()
+      doc.setFontSize(16)
+      doc.text("Relatório - Visão Geral", 14, 18)
+      doc.setFontSize(10)
+      doc.text(`Gerado em: ${format(now, "dd/MM/yyyy HH:mm", { locale: ptBR })}`, 14, 25)
+
+      // Resumo
+      const resumoLines = [
+        `Total de Posts: ${posts.length}`,
+        `Clientes: ${clientsCount}`,
+        `Aprovados: ${statusCounts.aprovado || 0}`,
+        `Pendentes: ${statusCounts.pendente || 0}`,
+        `Em revisão: ${statusCounts.em_revisao || 0}`,
+        `Rejeitados: ${statusCounts.rejeitado || 0}`,
+      ]
+      doc.setFontSize(12)
+      doc.text("Resumo", 14, 35)
+      doc.setFontSize(10)
+      resumoLines.forEach((line, i) => doc.text(line, 14, 42 + i * 6))
+
+      // Posts Recentes
+      let startY = 42 + resumoLines.length * 6 + 6
+      doc.setFontSize(12)
+      doc.text("Posts Recentes", 14, startY)
+      startY += 4
+      // @ts-ignore - plugin injects autoTable into jsPDF instance
+      ;(doc as any).autoTable({
+        startY,
+        head: [["Título", "Status", "Rede", "Publicação"]],
+        body: recentPosts.map((p) => [
+          p.title || "",
+          p.status || "",
+          p.social_network || "-",
+          p.publish_date
+            ? format(new Date(p.publish_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+            : "-",
+        ]),
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [27, 75, 124] },
+        theme: "grid",
+      })
+      // @ts-ignore
+      let afterY = (doc as any).lastAutoTable?.finalY || startY + 10
+
+      // Atividades Recentes
+      doc.setFontSize(12)
+      doc.text("Atividades Recentes", 14, afterY + 10)
+      // @ts-ignore
+      ;(doc as any).autoTable({
+        startY: afterY + 14,
+        head: [["Autor", "Cliente", "Mensagem", "Data"]],
+        body: recentReviews.map((r) => [
+          r.author_type === "user" ? "Usuário" : "Cliente",
+          clientNameByPostId[r.post_id] || "",
+          r.message || "-",
+          r.created_at
+            ? format(new Date(r.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+            : "",
+        ]),
+        columnStyles: { 2: { cellWidth: 80 } },
+        styles: { fontSize: 9, cellPadding: 2 },
+        headStyles: { fillColor: [27, 75, 124] },
+        theme: "grid",
+      })
+
+      doc.save("relatorio-visao-geral.pdf")
+      toast.success("PDF gerado com sucesso")
+    } catch (e: any) {
+      toast.error("Falha ao gerar PDF", { description: e?.message || String(e) })
+    }
+  }
+
+  async function handleExportWord() {
+    try {
+      const docx = await import("docx")
+      const {
+        Document,
+        Packer,
+        Paragraph,
+        HeadingLevel,
+        Table,
+        TableRow,
+        TableCell,
+        WidthType,
+        TextRun,
+      } = docx as any
+
+      const now = new Date()
+
+      const resumoPara = new Paragraph({
+        children: [
+          new TextRun({ text: `Gerado em: ${format(now, "dd/MM/yyyy HH:mm", { locale: ptBR })}`, size: 20 }),
+        ],
+      })
+
+      const resumoList = [
+        `Total de Posts: ${posts.length}`,
+        `Clientes: ${clientsCount}`,
+        `Aprovados: ${statusCounts.aprovado || 0}`,
+        `Pendentes: ${statusCounts.pendente || 0}`,
+        `Em revisão: ${statusCounts.em_revisao || 0}`,
+        `Rejeitados: ${statusCounts.rejeitado || 0}`,
+      ].map((t) => new Paragraph({ children: [new TextRun({ text: t, size: 20 })] }))
+
+      const postsRows = [
+        new TableRow({
+          children: ["Título", "Status", "Rede", "Publicação"].map((h: string) =>
+            new TableCell({ children: [new Paragraph({ text: h })], width: { size: 25, type: WidthType.PERCENTAGE } })
+          ),
+        }),
+        ...recentPosts.map(
+          (p) =>
+            new TableRow({
+              children: [
+                p.title || "",
+                p.status || "",
+                p.social_network || "-",
+                p.publish_date
+                  ? format(new Date(p.publish_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                  : "-",
+              ].map((v) => new TableCell({ children: [new Paragraph({ text: String(v) })] })),
+            })
+        ),
+      ]
+
+      const reviewsRows = [
+        new TableRow({
+          children: ["Autor", "Cliente", "Mensagem", "Data"].map((h: string) =>
+            new TableCell({ children: [new Paragraph({ text: h })], width: { size: 25, type: WidthType.PERCENTAGE } })
+          ),
+        }),
+        ...recentReviews.map(
+          (r) =>
+            new TableRow({
+              children: [
+                r.author_type === "user" ? "Usuário" : "Cliente",
+                clientNameByPostId[r.post_id] || "",
+                r.message || "-",
+                r.created_at
+                  ? format(new Date(r.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                  : "",
+              ].map((v) => new TableCell({ children: [new Paragraph({ text: String(v) })] })),
+            })
+        ),
+      ]
+
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: [
+              new Paragraph({ text: "Relatório - Visão Geral", heading: HeadingLevel.HEADING_1 }),
+              resumoPara,
+              ...resumoList,
+              new Paragraph({ text: " " }),
+              new Paragraph({ text: "Posts Recentes", heading: HeadingLevel.HEADING_2 }),
+              new Table({ rows: postsRows }),
+              new Paragraph({ text: " " }),
+              new Paragraph({ text: "Atividades Recentes", heading: HeadingLevel.HEADING_2 }),
+              new Table({ rows: reviewsRows }),
+            ],
+          },
+        ],
+      })
+
+      const blob = await (Packer as any).toBlob(doc)
+      downloadBlob(blob, "relatorio-visao-geral.docx")
+      toast.success("Word gerado com sucesso")
+    } catch (e: any) {
+      toast.error("Falha ao gerar Word", { description: e?.message || String(e) })
+    }
+  }
+
+  async function handleExportExcel() {
+    try {
+      const XLSX: any = await import("xlsx")
+
+      const resumoSheetData = [
+        ["Métrica", "Valor"],
+        ["Total de Posts", posts.length],
+        ["Clientes", clientsCount],
+        ["Aprovados", statusCounts.aprovado || 0],
+        ["Pendentes", statusCounts.pendente || 0],
+        ["Em revisão", statusCounts.em_revisao || 0],
+        ["Rejeitados", statusCounts.rejeitado || 0],
+      ]
+      const wsResumo = XLSX.utils.aoa_to_sheet(resumoSheetData)
+
+      const postsSheetData = [
+        ["Título", "Status", "Rede", "Publicação"],
+        ...recentPosts.map((p) => [
+          p.title || "",
+          p.status || "",
+          p.social_network || "-",
+          p.publish_date
+            ? format(new Date(p.publish_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+            : "-",
+        ]),
+      ]
+      const wsPosts = XLSX.utils.aoa_to_sheet(postsSheetData)
+
+      const reviewsSheetData = [
+        ["Autor", "Cliente", "Mensagem", "Data"],
+        ...recentReviews.map((r) => [
+          r.author_type === "user" ? "Usuário" : "Cliente",
+          clientNameByPostId[r.post_id] || "",
+          r.message || "-",
+          r.created_at
+            ? format(new Date(r.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+            : "",
+        ]),
+      ]
+      const wsReviews = XLSX.utils.aoa_to_sheet(reviewsSheetData)
+
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, wsResumo, "Resumo")
+      XLSX.utils.book_append_sheet(wb, wsPosts, "Posts Recentes")
+      XLSX.utils.book_append_sheet(wb, wsReviews, "Atividades Recentes")
+      XLSX.writeFile(wb, "relatorio-visao-geral.xlsx")
+      toast.success("Excel gerado com sucesso")
+    } catch (e: any) {
+      toast.error("Falha ao gerar Excel", { description: e?.message || String(e) })
+    }
+  }
 
   async function loadData() {
     try {
@@ -167,11 +405,11 @@ export default function Painel() {
 
   const chartConfig = useMemo(
     () => ({
-      instagram: { label: "Instagram", color: "#053665" },
-      facebook: { label: "Facebook", color: "#053665" },
-      linkedin: { label: "LinkedIn", color: "#053665" },
-      tiktok: { label: "TikTok", color: "#053665" },
-      youtube: { label: "YouTube", color: "#053665" },
+      instagram: { label: "Instagram", color: "#E1306C" }, // Rosa Instagram
+      facebook: { label: "Facebook", color: "#1877F2" }, // Azul Facebook
+      linkedin: { label: "LinkedIn", color: "#0A66C2" }, // Azul LinkedIn
+      tiktok: { label: "TikTok", color: "#000000" }, // Preto TikTok
+      youtube: { label: "YouTube", color: "#FF0000" }, // Vermelho YouTube
       sem_rede: { label: "Sem rede", color: "#053665" },
     }),
     []
@@ -201,14 +439,17 @@ export default function Painel() {
               Acompanhe seus indicadores principais e atividades recentes.
             </p>
           </div>
-          {/*
-          <div className="flex gap-2">
-            <Button onClick={() => router.push("/upload")} className="gap-2">
-              <PlusCircle className="w-4 h-4" /> Novo Post
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2">
+              <FileDown className="w-4 h-4" /> PDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportWord} className="gap-2">
+              <FileText className="w-4 h-4" /> Word
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportExcel} className="gap-2">
+              <FileSpreadsheet className="w-4 h-4" /> Excel
             </Button>
           </div>
-          */}
-          
         </div>
 
         {/* KPI Cards */}
@@ -380,7 +621,6 @@ export default function Painel() {
             </CardContent>
           </Card>
 
-       
           <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl lg:col-span-2">
             <CardHeader className="flex items-center justify-between pb-3 border-b border-slate-100">
               <CardTitle className="flex items-center gap-2 text-[#1B4B7C] text-lg font-semibold tracking-tight">

@@ -6,6 +6,8 @@ import Video from "next-video";
 import { useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
   format,
   addMonths,
@@ -42,6 +44,10 @@ export default function PublicClientPreviewPage() {
   const [weekIndex, setWeekIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [history, setHistory] = useState<any[]>([]);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [adjustText, setAdjustText] = useState("");
+  const [adjustLoading, setAdjustLoading] = useState(false);
+  const [adjustError, setAdjustError] = useState<string | null>(null);
   const [speaking, setSpeaking] = useState(false);
 
   async function load() {
@@ -182,6 +188,36 @@ export default function PublicClientPreviewPage() {
       synth.speak(u);
     } catch {
       /* ignore */
+    }
+  }
+
+  async function submitAdjust() {
+    if (!selected?.id) return;
+    const text = (adjustText || '').trim();
+    if (!text) { setAdjustError('Descreva o ajuste desejado.'); return; }
+    try {
+      setAdjustLoading(true);
+      const res = await fetch(`/api/public/posts/${selected?.id}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      if (res.ok) {
+        await updateStatus(selected!.id, 'em_revisao');
+        const r = await fetch(`/api/posts/${selected!.id}/reviews`);
+        const d = await r.json();
+        setHistory(d.reviews || []);
+        setAdjustOpen(false);
+        setAdjustText('');
+        setAdjustError(null);
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setAdjustError(d?.error || 'Falha ao enviar');
+      }
+    } catch (e) {
+      setAdjustError((e as any)?.message || String(e));
+    } finally {
+      setAdjustLoading(false);
     }
   }
 
@@ -328,31 +364,10 @@ export default function PublicClientPreviewPage() {
                     <div className="flex gap-3">
                       <Button
                         variant="outline"
-                        onClick={async () => {
-                          if (!selected?.id) return;
-                          const msg = window.prompt(
-                            "Descreva o ajuste desejado"
-                          );
-                          if (!msg) return;
-                          const res = await fetch(
-                            `/api/public/posts/${selected.id}/reviews`,
-                            {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ message: msg }),
-                            }
-                          );
-                          if (res.ok) {
-                            await updateStatus(selected.id, "em_revisao");
-                            const r = await fetch(
-                              `/api/posts/${selected.id}/reviews`
-                            );
-                            const d = await r.json();
-                            setHistory(d.reviews || []);
-                          } else {
-                            const d = await res.json().catch(() => ({}));
-                            alert(d?.error || "Falha ao enviar");
-                          }
+                        onClick={() => {
+                          setAdjustText("");
+                          setAdjustError(null);
+                          setAdjustOpen(true);
                         }}
                       >
                         Solicitar ajuste
@@ -403,7 +418,33 @@ export default function PublicClientPreviewPage() {
             </Card>
           </div>
         )}
+
+        <Dialog open={adjustOpen} onOpenChange={setAdjustOpen}>
+          <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+            <DialogHeader className="px-6 pt-5 pb-3 border-b">
+              <DialogTitle className="text-base font-semibold text-slate-900">Solicitar ajuste</DialogTitle>
+            </DialogHeader>
+            <div className="px-6 py-4">
+              <Textarea
+                placeholder="Descreva de forma objetiva o ajuste desejado"
+                value={adjustText}
+                onChange={(e)=>{ setAdjustText(e.target.value); setAdjustError(null); }}
+                className="min-h-28 bg-white"
+              />
+              {adjustError && (
+                <div className="text-xs text-red-600 mt-2">{adjustError}</div>
+              )}
+            </div>
+            <div className="px-6 pb-5 flex items-center justify-end gap-2 border-t pt-3">
+              <Button variant="outline" onClick={()=> setAdjustOpen(false)}>Cancelar</Button>
+              <Button onClick={submitAdjust} disabled={adjustLoading} className="bg-blue-950 text-white">
+                {adjustLoading ? 'Enviando...' : 'Enviar' }
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
 }
+

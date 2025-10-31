@@ -6,7 +6,10 @@ export const navItems: NavItem[] = [
   {
     icon: <ChartBar />,
     name: "Painel Administrativo",
-    subItems: [{ name: "Visao Geral", path: "/visao-geral", pro: false },],
+    subItems: [
+      { name: "Visao Geral", path: "/visao-geral", pro: false },
+      { name: "Relatorios", path: "/relatorios", pro: false },
+    ],
   },
   {
     name: "Automação",

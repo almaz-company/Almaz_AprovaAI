@@ -2,18 +2,34 @@
 "use client";
 
 import React, { useEffect, useState, FormEvent, Suspense } from "react";
-import { ArrowLeft, ArrowRight, FileText, Calendar, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  FileText,
+  Calendar,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 
 import { FileUploadZone } from "@/src/presentation/modules/upload/components/FileUploadZone";
 import { useAuth } from "@/lib/auth-context";
-import { uploadToStorage, saveFileMetadata, type UploadedInfo } from "@/lib/storage";
+import {
+  uploadToStorage,
+  saveFileMetadata,
+  type UploadedInfo,
+} from "@/lib/storage";
 import { toast } from "sonner";
 import { listClients } from "@/lib/clients";
 import { supabase } from "@/lib/supabase/client";
@@ -35,28 +51,44 @@ function UploadPageContent() {
     client_id: "",
   });
 
-  const [clients, setClients] = useState<{ id: string; company_name: string }[]>([]);
+  const [clients, setClients] = useState<
+    { id: string; company_name: string }[]
+  >([]);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<{ url?: string; name?: string } | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{
+    url?: string;
+    name?: string;
+  } | null>(null);
   const [uploadedFileId, setUploadedFileId] = useState<string | null>(null);
   const [postId, setPostId] = useState<string | null>(null);
   const [postStatus, setPostStatus] = useState<string>("pendente");
 
   // Libera upload quando estiver em revisão ou aprovado
   const isUploadUnlocked = ["em_revisao", "aprovado"].includes(postStatus);
-  const stepTitle = isUploadUnlocked ? "Etapa 2: Conteúdo Final" : "Etapa 1: Aprovação de Tema";
-  const submitLabel = isUploadUnlocked ? "Salvar Conteúdo Final" : "Enviar Tema para Aprovação";
+  const stepTitle = isUploadUnlocked
+    ? "Etapa 2: Conteúdo Final"
+    : "Etapa 1: Aprovação de Tema";
+  const submitLabel = isUploadUnlocked
+    ? "Salvar Conteúdo Final"
+    : "Enviar Tema para Aprovação";
 
   useEffect(() => {
     async function loadClients() {
       if (!user?.id) return;
       try {
         const data = await listClients(user.id);
-        setClients((data || []).map((c: any) => ({ id: c.id, company_name: c.company_name })));
+        setClients(
+          (data || []).map((c: any) => ({
+            id: c.id,
+            company_name: c.company_name,
+          }))
+        );
       } catch (e: any) {
-        toast.error("Erro ao carregar clientes", { description: e?.message || String(e) });
+        toast.error("Erro ao carregar clientes", {
+          description: e?.message || String(e),
+        });
       }
     }
     loadClients();
@@ -71,7 +103,11 @@ function UploadPageContent() {
     async function loadPost() {
       if (!postId) return;
       try {
-        const { data, error } = await supabase.from("posts").select("*").eq("id", postId).single();
+        const { data, error } = await supabase
+          .from("posts")
+          .select("*")
+          .eq("id", postId)
+          .single();
         if (error) throw error;
         if (data) {
           setFormData({
@@ -80,14 +116,18 @@ function UploadPageContent() {
             especificacao: data.especificacao || "",
             tipo_conteudo: data.tipo_conteudo || "",
             social_network: data.social_network || "",
-            publish_date: data.publish_date ? new Date(data.publish_date).toISOString().slice(0, 16) : "",
+            publish_date: data.publish_date
+              ? new Date(data.publish_date).toISOString().slice(0, 16)
+              : "",
             priority: data.priority || "media",
             client_id: data.client_id || "",
           });
           setPostStatus(data.status || "pendente");
         }
       } catch (e: any) {
-        toast.error("Erro ao carregar post", { description: e?.message || String(e) });
+        toast.error("Erro ao carregar post", {
+          description: e?.message || String(e),
+        });
       }
     }
     loadPost();
@@ -100,7 +140,14 @@ function UploadPageContent() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.tema || !formData.especificacao || !formData.tipo_conteudo || !formData.social_network || !formData.publish_date) {
+    if (
+      !formData.title ||
+      !formData.tema ||
+      !formData.especificacao ||
+      !formData.tipo_conteudo ||
+      !formData.social_network ||
+      !formData.publish_date
+    ) {
       setError("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -135,7 +182,9 @@ function UploadPageContent() {
           if (linkError) throw linkError;
         }
 
-        toast.success("Post atualizado com sucesso! Redirecionando para Posts...");
+        toast.success(
+          "Post atualizado com sucesso! Redirecionando para Posts..."
+        );
         router.push("/posts");
         return;
       }
@@ -170,9 +219,10 @@ function UploadPageContent() {
       toast.success("Post criado com sucesso! Redirecionando para Posts...");
       router.push("/posts");
       return;
-      
     } catch (err: any) {
-      toast.error("Erro ao salvar tema", { description: err?.message || String(err) });
+      toast.error("Erro ao salvar tema", {
+        description: err?.message || String(err),
+      });
     } finally {
       setSubmitting(false);
     }
@@ -214,7 +264,9 @@ function UploadPageContent() {
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
-              throw new Error(data?.error || "Falha ao processar vídeo com next-video");
+              throw new Error(
+                data?.error || "Falha ao processar vídeo com next-video"
+              );
             }
             toast.success("Vídeo em processamento (next-video)");
           } catch (e: any) {
@@ -225,9 +277,11 @@ function UploadPageContent() {
         }
       }
 
-      toast.success("Arquivo enviado com sucesso");
+      toast.success("Arquivo salvo com sucesso");
     } catch (err: any) {
-      toast.error("Erro ao enviar arquivo", { description: err?.message || String(err) });
+      toast.error("Erro ao enviar arquivo", {
+        description: err?.message || String(err),
+      });
     } finally {
       setUploading(false);
     }
@@ -245,23 +299,34 @@ function UploadPageContent() {
           {/* Header */}
           <div className="flex items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
-              <Button type="button" variant="outline" size="icon" className="hover:bg-white/80 rounded-full w-10 h-10">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{stepTitle}</h1>
-                <p className="text-slate-600 text-sm">Defina o tema e as informações básicas para aprovação.</p>
+                <h1 className="text-2xl font-bold text-slate-900">
+                  {stepTitle}
+                </h1>
+                <p className="text-slate-600 text-sm">
+                  Defina o tema e as informações básicas para aprovação.
+                </p>
               </div>
             </div>
 
             <div className="flex gap-3 items-center">
               {postId && (
-                <Badge className={isUploadUnlocked ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}>
+                <Badge
+                  className={
+                    isUploadUnlocked
+                      ? "bg-green-100 text-green-800"
+                      : "bg-amber-100 text-amber-800"
+                  }
+                >
                   {postStatus.replace("_", " ")}
                 </Badge>
               )}
               <Button variant="outline">Cancelar</Button>
-              <Button type="submit" disabled={submitting} className="bg-[#053665] hover:bg-[#052244] text-white min-w-40 shadow-md">
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="bg-[#053665] hover:bg-[#052244] text-white min-w-40 shadow-md"
+              >
                 {submitting ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -292,7 +357,9 @@ function UploadPageContent() {
               {isUploadUnlocked && (
                 <Card className="bg-white/90 shadow-md border-0">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">Upload de Mídia</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      Upload de Mídia
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <FileUploadZone
@@ -315,34 +382,72 @@ function UploadPageContent() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Título da Postagem *</label>
-                    <Input value={formData.title} onChange={(e) => handleInputChange("title", e.target.value)} placeholder="Ex: Lançamento da Nova Coleção de Inverno" required />
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Título da Postagem *
+                    </label>
+                    <Input
+                      value={formData.title}
+                      onChange={(e) =>
+                        handleInputChange("title", e.target.value)
+                      }
+                      placeholder="Ex: Lançamento da Nova Coleção de Inverno"
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Tema *</label>
-                    <Input value={formData.tema} onChange={(e) => handleInputChange("tema", e.target.value)} placeholder="Assunto central do conteúdo" required />
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Tema *
+                    </label>
+                    <Input
+                      value={formData.tema}
+                      onChange={(e) =>
+                        handleInputChange("tema", e.target.value)
+                      }
+                      placeholder="Assunto central do conteúdo"
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Especificação do Conteúdo *</label>
-                    <Textarea value={formData.especificacao} onChange={(e) => handleInputChange("especificacao", e.target.value)} placeholder="Detalhe os requisitos do conteúdo" required />
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Especificação do Conteúdo *
+                    </label>
+                    <Textarea
+                      value={formData.especificacao}
+                      onChange={(e) =>
+                        handleInputChange("especificacao", e.target.value)
+                      }
+                      placeholder="Detalhe os requisitos do conteúdo"
+                      required
+                    />
                   </div>
                 </CardContent>
               </Card>
-
               {/* Detalhes de Publicação */}
-              <Card className="bg-white/90 shadow-md border-0">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Calendar className="w-5 h-5 text-[#053665]" />
+              <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
+                <CardHeader className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <CardTitle className="flex items-center gap-2 text-[#1B4B7C] text-lg font-semibold tracking-tight">
+                    <Calendar className="w-5 h-5 text-[#1B4B7C]" />
                     Detalhes de Publicação
                   </CardTitle>
+                  <span className="text-xs text-slate-400 uppercase tracking-wider font-medium">
+                    Campos obrigatórios marcados com *
+                  </span>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+                  {/* Canal */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Canal *</label>
-                    <Select value={formData.social_network} onValueChange={(v) => handleInputChange("social_network", v)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecionar" />
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Canal <span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      value={formData.social_network}
+                      onValueChange={(v) =>
+                        handleInputChange("social_network", v)
+                      }
+                    >
+                      <SelectTrigger className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all">
+                        <SelectValue placeholder="Selecionar canal" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="instagram">Instagram</SelectItem>
@@ -353,10 +458,19 @@ function UploadPageContent() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Tipo de conteúdo */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Tipo de Conteúdo *</label>
-                    <Select value={formData.tipo_conteudo} onValueChange={(v) => handleInputChange("tipo_conteudo", v)}>
-                      <SelectTrigger>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Tipo de Conteúdo <span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      value={formData.tipo_conteudo}
+                      onValueChange={(v) =>
+                        handleInputChange("tipo_conteudo", v)
+                      }
+                    >
+                      <SelectTrigger className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all">
                         <SelectValue placeholder="Selecionar formato" />
                       </SelectTrigger>
                       <SelectContent>
@@ -368,15 +482,35 @@ function UploadPageContent() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Data e hora */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Data e Hora da Publicação *</label>
-                    <Input type="datetime-local" value={formData.publish_date} onChange={(e) => handleInputChange("publish_date", e.target.value)} required />
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Data e Hora da Publicação{" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="datetime-local"
+                      value={formData.publish_date}
+                      onChange={(e) =>
+                        handleInputChange("publish_date", e.target.value)
+                      }
+                      required
+                      className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all"
+                    />
                   </div>
+
+                  {/* Prioridade */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Prioridade</label>
-                    <Select value={formData.priority} onValueChange={(v) => handleInputChange("priority", v)}>
-                      <SelectTrigger>
-                        <SelectValue />
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Prioridade
+                    </label>
+                    <Select
+                      value={formData.priority}
+                      onValueChange={(v) => handleInputChange("priority", v)}
+                    >
+                      <SelectTrigger className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all">
+                        <SelectValue placeholder="Selecionar prioridade" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="baixa">Baixa</SelectItem>
@@ -385,10 +519,19 @@ function UploadPageContent() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Cliente */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Cliente</label>
-                    <Select value={formData.client_id || "none"} onValueChange={(v) => handleInputChange("client_id", v === "none" ? "" : v)}>
-                      <SelectTrigger>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Cliente
+                    </label>
+                    <Select
+                      value={formData.client_id || "none"}
+                      onValueChange={(v) =>
+                        handleInputChange("client_id", v === "none" ? "" : v)
+                      }
+                    >
+                      <SelectTrigger className="rounded-xl border-slate-200 focus:ring-2 focus:ring-[#1B4B7C]/20 focus:border-[#1B4B7C]/50 transition-all">
                         <SelectValue placeholder="Selecionar cliente" />
                       </SelectTrigger>
                       <SelectContent>
@@ -418,4 +561,3 @@ export default function UploadPage() {
     </Suspense>
   );
 }
-

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ApexOptions } from "apexcharts";
@@ -22,63 +22,82 @@ export function ConversionFunnel() {
     "Rejeitados",
   ], []);
 
-  useEffect(() => {
-    async function load() {
-      if (!user?.id) return;
-      try {
-        setLoading(true);
-        // Pendentes
-        const pendQ = supabase
-          .from("posts")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("status", "pendente");
-        // Em análise (em_revisao)
-        const analiseQ = supabase
-          .from("posts")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("status", "em_revisao");
-        // Aprovadas
-        const aprovQ = supabase
-          .from("posts")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("status", "aprovado");
-        // Rejeitadas
-        const rejQ = supabase
-          .from("posts")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("status", "rejeitado");
-        // Finalizadas: posts com pelo menos 1 arquivo vinculado
-        const filesQ = supabase
-          .from("files")
-          .select("post_id")
-          .eq("user_id", user.id)
-          .not("post_id", "is", null);
+  const load = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      setLoading(true);
+      // Pendentes
+      const pendQ = supabase
+        .from("posts")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "pendente");
+      // Em análise (em_revisao)
+      const analiseQ = supabase
+        .from("posts")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "em_revisao");
+      // Aprovadas
+      const aprovQ = supabase
+        .from("posts")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "aprovado");
+      // Rejeitadas
+      const rejQ = supabase
+        .from("posts")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "rejeitado");
+      // Finalizadas: posts com pelo menos 1 arquivo vinculado
+      const filesQ = supabase
+        .from("files")
+        .select("post_id")
+        .eq("user_id", user.id)
+        .not("post_id", "is", null);
 
-        const [pendR, analiseR, aprovR, rejR, filesR] = await Promise.all([
-          pendQ,
-          analiseQ,
-          aprovQ,
-          rejQ,
-          filesQ,
-        ]);
+      const [pendR, analiseR, aprovR, rejR, filesR] = await Promise.all([
+        pendQ,
+        analiseQ,
+        aprovQ,
+        rejQ,
+        filesQ,
+      ]);
 
-        const pend = (pendR as any)?.count ?? 0;
-        const analise = (analiseR as any)?.count ?? 0;
-        const aprov = (aprovR as any)?.count ?? 0;
-        const reje = (rejR as any)?.count ?? 0;
-        const uniqFinal = new Set((filesR as any)?.data?.map((r: any) => r.post_id).filter(Boolean)).size;
+      const pend = (pendR as any)?.count ?? 0;
+      const analise = (analiseR as any)?.count ?? 0;
+      const aprov = (aprovR as any)?.count ?? 0;
+      const reje = (rejR as any)?.count ?? 0;
+      const uniqFinal = new Set((filesR as any)?.data?.map((r: any) => r.post_id).filter(Boolean)).size;
 
-        setSeriesData([pend, analise, aprov, uniqFinal, reje]);
-      } finally {
-        setLoading(false);
-      }
+      setSeriesData([pend, analise, aprov, uniqFinal, reje]);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, [user?.id]);
+
+  useEffect(() => { load(); }, [load]);
+
+  // Realtime sync: posts/files changes atualizam o funil
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`funnel-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'posts', filter: `user_id=eq.${user.id}` },
+        () => { load(); }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'files', filter: `user_id=eq.${user.id}` },
+        () => { load(); }
+      )
+      .subscribe();
+
+    return () => { try { supabase.removeChannel(channel); } catch { /* ignore */ } };
+  }, [user?.id, load]);
 
   const options: ApexOptions = {
     chart: {
