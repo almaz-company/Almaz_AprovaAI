@@ -64,7 +64,6 @@ type Review = {
 type ClientRow = { id: string; company_name: string };
 
 export default function Painel() {
-  const router = useRouter();
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
