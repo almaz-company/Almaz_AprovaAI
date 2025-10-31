@@ -56,7 +56,7 @@ export default function SignUp() {
   });
 
   // ============================
-  // 🚀 
+  // 
   // ============================
 
   const onSubmit = handleSubmit(async ({ name, email, password }) => {
@@ -72,7 +72,7 @@ export default function SignUp() {
         description: "Verifique seu e-mail para confirmar a conta.",
       });
 
-      router.replace("/login");
+      router.replace("/");
     } catch (err) {
       console.error(err);
       toast.error("Erro inesperado", {
