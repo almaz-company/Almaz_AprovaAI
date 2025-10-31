@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Video from "next-video";
 import { useRouter } from "next/navigation";
 import {
@@ -90,19 +92,28 @@ const getStatusConfig = (status: string) => {
 // ---------- Componente ----------
 export function PostModal({ post, isOpen, onClose, onUpdate, onClientClick }: PostModalProps) {
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    title: "",
+    tema: "",
+    especificacao: "",
+    tipo_conteudo: "",
+    content: "",
+  });
   useEffect(() => {
     if (!isOpen) {
       // Resetar estados se necessário
     }
   }, [isOpen]);
 
-  if (!post) return null;
+  /* moved null-check below to keep hooks order */
 
-  const statusConfig = getStatusConfig(post.status);
+  const statusConfig = getStatusConfig((post && post.status) || "pendente");
   const StatusIcon = statusConfig.icon;
 
   const handleQuickAction = async (action: string) => {
     try {
+      //@ts-ignore
       await fetch(`/api/posts/${post.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -115,11 +126,54 @@ export function PostModal({ post, isOpen, onClose, onUpdate, onClientClick }: Po
     }
   };
 
-  const isVideo =
+  // Preenche campos ao abrir e ativa modo edição quando estiver em revisão
+  useEffect(() => {
+    if (post) {
+      setEditData({
+        title: post.title || "",
+        tema: post.tema || "",
+        especificacao: post.especificacao || "",
+        tipo_conteudo: post.tipo_conteudo || "",
+        content: post.content || "",
+      });
+      setIsEditing(post.status === "em_revisao");
+    }
+  }, [post]);
+
+  
+  if (!post) return null;
+const saveEdits = async () => {
+    try {
+      await fetch(`/api/posts/${post.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editData.title,
+          tema: editData.tema,
+          especificacao: editData.especificacao,
+          tipo_conteudo: editData.tipo_conteudo,
+          content: editData.content,
+        }),
+      });
+      onUpdate();
+      setIsEditing(false);
+    } catch (e) {
+      console.error("Erro ao salvar ajustes:", e);
+    }
+  };
+
+  const tipo = (post.tipo_conteudo || "").toLowerCase();
+  const isVideo = !!(
     post.media_url &&
     (/\.(mp4|mov|avi|mkv|webm)$/i.test(post.media_url) ||
-      post.tipo_conteudo === "Reels" ||
-      post.tipo_conteudo === "Video");
+      ["reels", "video", "vídeo"].includes(tipo))
+  );
+  const isImage = !!(
+    post.media_url && (
+      /\.(jpeg|jpg|gif|png|webp|avif|bmp)$/i.test(post.media_url) ||
+      ["imagem", "image", "foto", "stories", "carousel", "carrossel"].includes(tipo)
+    )
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -161,6 +215,67 @@ export function PostModal({ post, isOpen, onClose, onUpdate, onClientClick }: Po
             </div>
           </div>
 
+          {/* Edição rápida quando há solicitação de revisão */}
+          {post.status === "em_revisao" && (
+            <div className="mt-4 bg-white p-4 rounded-lg border">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-sm text-slate-700">Solicitação de revisão ativa — ajuste os conteúdos abaixo.</div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setIsEditing((v) => !v)}>
+                    {isEditing ? "Ocultar edição" : "Editar conteúdos"}
+                  </Button>
+                  {isEditing && (
+                    <Button onClick={saveEdits} className="bg-blue-600 hover:bg-blue-700 text-white">
+                      Salvar ajustes
+                    </Button>
+                  )}
+                </div>
+              </div>
+              {isEditing && (
+                <div className="grid gap-3">
+                  <input
+                    className="w-full border rounded px-3 py-2 text-sm"
+                    placeholder="Título"
+                    value={editData.title}
+                    onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                  />
+                  <input
+                    className="w-full border rounded px-3 py-2 text-sm"
+                    placeholder="Tema"
+                    value={editData.tema}
+                    onChange={(e) => setEditData({ ...editData, tema: e.target.value })}
+                  />
+                  <input
+                    className="w-full border rounded px-3 py-2 text-sm"
+                    placeholder="Tipo de conteúdo"
+                    value={editData.tipo_conteudo}
+                    onChange={(e) => setEditData({ ...editData, tipo_conteudo: e.target.value })}
+                  />
+                  <textarea
+                    className="w-full border rounded px-3 py-2 text-sm min-h-20"
+                    placeholder="Especificação"
+                    value={editData.especificacao}
+                    onChange={(e) => setEditData({ ...editData, especificacao: e.target.value })}
+                  />
+                  <textarea
+                    className="w-full border rounded px-3 py-2 text-sm min-h-28"
+                    placeholder="Legenda / Conteúdo"
+                    value={editData.content}
+                    onChange={(e) => setEditData({ ...editData, content: e.target.value })}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {post.status === "em_revisao" && (
+            <div className="flex justify-end gap-2 mt-3">
+              <Button onClick={() => handleQuickAction("aprovado")} className="bg-green-600 hover:bg-green-700 text-white">
+                Marcar como aprovado
+              </Button>
+            </div>
+          )}
+
           {/* Preview da Mídia */}
           {post.media_url && (
             <div className="bg-slate-100 rounded-xl overflow-hidden mb-4 max-h-[500px] flex items-center justify-center">
@@ -170,8 +285,8 @@ export function PostModal({ post, isOpen, onClose, onUpdate, onClientClick }: Po
                   controls
                   className="w-full max-h-[500px] rounded-xl object-contain"
                   preload="metadata"
-                 />
-              ) : /\.(jpeg|jpg|gif|png)$/i.test(post.media_url) ? (
+                />
+              ) : isImage ? (
                 <img
                   src={post.media_url}
                   alt="media preview"
@@ -259,5 +374,7 @@ export function PostModal({ post, isOpen, onClose, onUpdate, onClientClick }: Po
     </Dialog>
   );
 }
+
+
 
 

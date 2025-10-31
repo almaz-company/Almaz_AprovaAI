@@ -110,6 +110,36 @@ function UploadPageContent() {
         return;
       }
       setSubmitting(true);
+      if (postId) {
+        const updatePayload: any = {
+          title: formData.title,
+          tema: formData.tema,
+          especificacao: formData.especificacao,
+          tipo_conteudo: formData.tipo_conteudo,
+          social_network: formData.social_network,
+          publish_date: new Date(formData.publish_date),
+          priority: formData.priority,
+          client_id: formData.client_id || null,
+        };
+        const { error: updError } = await supabase
+          .from("posts")
+          .update(updatePayload)
+          .eq("id", postId);
+        if (updError) throw updError;
+
+        if (uploadedFileId) {
+          const { error: linkError } = await supabase
+            .from("files")
+            .update({ post_id: postId })
+            .eq("id", uploadedFileId);
+          if (linkError) throw linkError;
+        }
+
+        toast.success("Post atualizado com sucesso! Redirecionando para Posts...");
+        router.push("/posts");
+        return;
+      }
+
       const payload = {
         user_id: user.id,
         title: formData.title,
@@ -122,11 +152,18 @@ function UploadPageContent() {
         client_id: formData.client_id || null,
         status: "pendente",
       };
-      const { data: post, error: postError } = await supabase.from("posts").insert(payload).select("id").single();
+      const { data: post, error: postError } = await supabase
+        .from("posts")
+        .insert(payload)
+        .select("id")
+        .single();
       if (postError) throw postError;
 
       if (uploadedFileId) {
-        const { error: linkError } = await supabase.from("files").update({ post_id: post.id }).eq("id", uploadedFileId);
+        const { error: linkError } = await supabase
+          .from("files")
+          .update({ post_id: post.id })
+          .eq("id", uploadedFileId);
         if (linkError) throw linkError;
       }
 
@@ -156,6 +193,14 @@ function UploadPageContent() {
       const saved = await saveFileMetadata(info, user.id);
       setUploadedFile({ url: info.signedUrl || undefined, name: file.name });
       setUploadedFileId(saved.id);
+
+      if (postId) {
+        const { error: linkError } = await supabase
+          .from("files")
+          .update({ post_id: postId })
+          .eq("id", saved.id);
+        if (linkError) throw linkError;
+      }
 
       // Dispara processamento via next-video quando for um arquivo de vídeo
       if (file.type?.startsWith("video")) {

@@ -118,6 +118,21 @@ export default function PublicClientPreviewPage() {
   }, [weekIndex, currentMonth, posts.length]);
   const selected = weekPosts[selectedIndex];
 
+  // Media helpers
+  const isVideo = !!(
+    selected?.media_url &&
+    (/\.(mp4|mov|avi|mkv|webm)$/i.test(selected.media_url) ||
+      ["reels", "video", "vídeo"].includes((selected?.tipo_conteudo || "").toLowerCase()))
+  );
+  const isImage = !!(
+    selected?.media_url && (
+      /\.(jpeg|jpg|gif|png|webp|avif|bmp)$/i.test(selected.media_url) ||
+      ["imagem", "image", "foto", "stories", "carousel", "carrossel"].includes(
+        (selected?.tipo_conteudo || "").toLowerCase()
+      )
+    )
+  );
+
   useEffect(() => {
     async function loadHistory() {
       if (!selected?.id) {
@@ -264,23 +279,30 @@ export default function PublicClientPreviewPage() {
             <div className="lg:col-span-2">
               <div className="relative bg-zinc-300 rounded-md overflow-hidden min-h-[420px] flex items-center justify-center">
                 {selected?.media_url ? (
-                  /\.(mp4|mov|avi|mkv|webm)$/i.test(selected.media_url) ? (
+                  isVideo ? (
                     <Video
                       src={selected.media_url}
                       controls
                       autoPlay
                       playsInline
                       muted
-                      className="w-full h-auto max-h-[85vh] object-cover rounded-xl"
+                      className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
+                    />
+                  ) : isImage ? (
+                    <img
+                      src={selected.media_url}
+                      alt="media preview"
+                      className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
                     />
                   ) : (
-                    <video
-                      src={selected.media_url}
-                      controls
-                      className="w-full h-auto max-h-[85vh] object-cover rounded-xl"
+                    <a
+                      href={selected.media_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline p-4 block"
                     >
-                      Seu navegador não suporta a tag de vídeo.
-                    </video>
+                      Ver arquivo anexo
+                    </a>
                   )
                 ) : (
                   <div className="text-white/60 text-sm">Sem mídia</div>

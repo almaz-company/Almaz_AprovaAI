@@ -4,14 +4,11 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth-context";
-import { useTheme } from "@/src/presentation/modules/Dashboard/layout/Sidebar/context/ThemeContext";
+// Removido: controles de tema (dark/light) na página de configurações
 
 export default function ConfiguracoesPage() {
   const { user, loading } = useAuth();
-  const { theme, effectiveTheme, toggleTheme, followSystem, setFollowSystem, setTheme } = useTheme();
 
   const name = (user?.user_metadata as any)?.name || (user?.user_metadata as any)?.full_name || "Usuário";
   const email = user?.email ?? "-";
@@ -55,41 +52,7 @@ export default function ConfiguracoesPage() {
           </CardContent>
         </Card>
 
-        {/* Aparência */}
-        <Card className="bg-white/90 border-0 shadow-md">
-          <CardHeader>
-            <CardTitle>Aparência</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium text-slate-800">Seguir tema do sistema</div>
-                <div className="text-sm text-slate-500">Automaticamente alterna entre claro/escuro conforme o sistema operacional.</div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge variant="outline" className="capitalize">{followSystem ? "ativado" : "desativado"}</Badge>
-                <Switch checked={followSystem} onCheckedChange={setFollowSystem} />
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium text-slate-800">Modo escuro</div>
-                <div className="text-sm text-slate-500">Use um tema escuro em toda a interface. {followSystem && "(controlado pelo sistema)"}</div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge variant="outline" className="capitalize">{theme} ({effectiveTheme})</Badge>
-                <Switch
-                  checked={effectiveTheme === "dark"}
-                  disabled={followSystem}
-                  onCheckedChange={(checked) => {
-                    if (followSystem) setFollowSystem(false);
-                    setTheme(checked ? "dark" : "light");
-                  }}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Aparência removida: tema fixo, sem alternância dark/light nesta página. */}
       </div>
     </div>
   );

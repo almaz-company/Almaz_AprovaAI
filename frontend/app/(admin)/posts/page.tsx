@@ -108,7 +108,10 @@ export default function PostsPage() {
             onChange={(e) => setQuery(e.target.value)}
             className="w-64"
           />
+          {/*
           <Button onClick={() => router.push("/upload")}>Novo Post</Button>
+          */}
+          
         </div>
       </div>
 
@@ -142,4 +145,3 @@ export default function PostsPage() {
     </div>
   );
 }
-﻿

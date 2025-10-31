@@ -9,14 +9,44 @@ import { ptBR } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
 import { listClients } from "@/lib/clients";
 import { toast } from "sonner";
-import { Activity, BarChart3, CheckCircle2, Clock, PlusCircle, Users } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, ResponsiveContainer } from "recharts";
+import {
+  Activity,
+  BarChart3,
+  CheckCircle2,
+  Clock,
+  PlusCircle,
+  Users,
+} from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Pie,
+  PieChart,
+  Cell,
+  ResponsiveContainer,
+} from "recharts";
 
 type Post = {
   id: string;
@@ -28,7 +58,13 @@ type Post = {
   created_at?: string | Date | null;
 };
 
-type Review = { id: string; post_id: string; author_type?: string | null; message?: string | null; created_at?: string | null };
+type Review = {
+  id: string;
+  post_id: string;
+  author_type?: string | null;
+  message?: string | null;
+  created_at?: string | null;
+};
 type ClientRow = { id: string; company_name: string };
 
 export default function Painel() {
@@ -73,7 +109,10 @@ export default function Painel() {
       })) as Post[];
 
       setPosts(postsData);
-      const clientRows: ClientRow[] = (clientsRes as any[]).map((c: any) => ({ id: c.id, company_name: c.company_name }));
+      const clientRows: ClientRow[] = (clientsRes as any[]).map((c: any) => ({
+        id: c.id,
+        company_name: c.company_name,
+      }));
       setClients(clientRows);
       setClientsCount(clientRows.length || 0);
 
@@ -92,17 +131,28 @@ export default function Painel() {
         if (!revErr) setRecentReviews(reviews || []);
       }
     } catch (e: any) {
-      toast.error("Erro ao carregar dados do painel", { description: e?.message || String(e) });
+      toast.error("Erro ao carregar dados do painel", {
+        description: e?.message || String(e),
+      });
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { loadData(); }, [user?.id]);
+  useEffect(() => {
+    loadData();
+  }, [user?.id]);
 
   const statusCounts = useMemo(() => {
-    const base = { pendente: 0, em_revisao: 0, aprovado: 0, rejeitado: 0 } as Record<string, number>;
-    posts.forEach((p) => { base[p.status] = (base[p.status] || 0) + 1; });
+    const base = {
+      pendente: 0,
+      em_revisao: 0,
+      aprovado: 0,
+      rejeitado: 0,
+    } as Record<string, number>;
+    posts.forEach((p) => {
+      base[p.status] = (base[p.status] || 0) + 1;
+    });
     return base;
   }, [posts]);
 
@@ -115,20 +165,26 @@ export default function Painel() {
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }, [posts]);
 
-  const chartConfig = useMemo(() => ({
-    instagram: { label: "Instagram", color: "#E1306C" },
-    facebook: { label: "Facebook", color: "#1877F2" },
-    linkedin: { label: "LinkedIn", color: "#0A66C2" },
-    tiktok: { label: "TikTok", color: "#111111" },
-    youtube: { label: "YouTube", color: "#FF0000" },
-    sem_rede: { label: "Sem rede", color: "#94a3b8" },
-  }), []);
+  const chartConfig = useMemo(
+    () => ({
+      instagram: { label: "Instagram", color: "#053665" },
+      facebook: { label: "Facebook", color: "#053665" },
+      linkedin: { label: "LinkedIn", color: "#053665" },
+      tiktok: { label: "TikTok", color: "#053665" },
+      youtube: { label: "YouTube", color: "#053665" },
+      sem_rede: { label: "Sem rede", color: "#053665" },
+    }),
+    []
+  );
 
   const totalPosts = posts.length;
-  const clientsById = useMemo(() => Object.fromEntries(clients.map(c => [c.id, c.company_name])), [clients]);
+  const clientsById = useMemo(
+    () => Object.fromEntries(clients.map((c) => [c.id, c.company_name])),
+    [clients]
+  );
   const clientNameByPostId = useMemo(() => {
     const map: Record<string, string> = {};
-    posts.forEach(p => {
+    posts.forEach((p) => {
       if (p.client_id) map[p.id] = clientsById[p.client_id] || "";
     });
     return map;
@@ -141,13 +197,18 @@ export default function Painel() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Visao Geral</h1>
-            <p className="text-slate-600 text-sm">Acompanhe seus indicadores principais e atividades recentes.</p>
+            <p className="text-slate-600 text-sm">
+              Acompanhe seus indicadores principais e atividades recentes.
+            </p>
           </div>
+          {/*
           <div className="flex gap-2">
             <Button onClick={() => router.push("/upload")} className="gap-2">
               <PlusCircle className="w-4 h-4" /> Novo Post
             </Button>
           </div>
+          */}
+          
         </div>
 
         {/* KPI Cards */}
@@ -155,8 +216,12 @@ export default function Painel() {
           <Card className="bg-white/90 border-0 shadow-md">
             <CardContent className="p-6 flex items-center justify-between">
               <div>
-                <p className="text-xs text-slate-500 uppercase font-semibold">Total de Posts</p>
-                <p className="text-3xl font-bold text-[#0a2540]">{loading ? "-" : totalPosts}</p>
+                <p className="text-xs text-slate-500 uppercase font-semibold">
+                  Total de Posts
+                </p>
+                <p className="text-3xl font-bold text-[#0a2540]">
+                  {loading ? "-" : totalPosts}
+                </p>
               </div>
               <BarChart3 className="w-10 h-10 text-[#0a2540] opacity-80" />
             </CardContent>
@@ -165,8 +230,12 @@ export default function Painel() {
           <Card className="bg-white/90 border-0 shadow-md">
             <CardContent className="p-6 flex items-center justify-between">
               <div>
-                <p className="text-xs text-slate-500 uppercase font-semibold">Clientes</p>
-                <p className="text-3xl font-bold text-[#0a2540]">{loading ? "-" : clientsCount}</p>
+                <p className="text-xs text-slate-500 uppercase font-semibold">
+                  Clientes
+                </p>
+                <p className="text-3xl font-bold text-[#0a2540]">
+                  {loading ? "-" : clientsCount}
+                </p>
               </div>
               <Users className="w-10 h-10 text-[#053665] opacity-80" />
             </CardContent>
@@ -175,20 +244,28 @@ export default function Painel() {
           <Card className="bg-white/90 border-0 shadow-md">
             <CardContent className="p-6 flex items-center justify-between">
               <div>
-                <p className="text-xs text-slate-500 uppercase font-semibold">Aprovados</p>
-                <p className="text-3xl font-bold text-green-700">{loading ? "-" : (statusCounts.aprovado || 0)}</p>
+                <p className="text-xs text-slate-500 uppercase font-semibold">
+                  Aprovados
+                </p>
+                <p className="text-3xl font-bold text-[#053665]">
+                  {loading ? "-" : statusCounts.aprovado || 0}
+                </p>
               </div>
-              <CheckCircle2 className="w-10 h-10 text-green-600 opacity-80" />
+              <CheckCircle2 className="w-10 h-10 text-[#053665] opacity-80" />
             </CardContent>
           </Card>
 
           <Card className="bg-white/90 border-0 shadow-md">
             <CardContent className="p-6 flex items-center justify-between">
               <div>
-                <p className="text-xs text-slate-500 uppercase font-semibold">Pendentes</p>
-                <p className="text-3xl font-bold text-amber-600">{loading ? "-" : (statusCounts.pendente || 0)}</p>
+                <p className="text-xs text-slate-500 uppercase font-semibold">
+                  Pendentes
+                </p>
+                <p className="text-3xl font-bold text-[#053665]">
+                  {loading ? "-" : statusCounts.pendente || 0}
+                </p>
               </div>
-              <Clock className="w-10 h-10 text-amber-600 opacity-80" />
+              <Clock className="w-10 h-10 text-[#053665] opacity-80" />
             </CardContent>
           </Card>
         </div>
@@ -196,72 +273,198 @@ export default function Painel() {
         {/* Charts + Recent activity */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Posts por Rede */}
-          <Card className="bg-white/90 border-0 shadow-md lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Distribuicao por Rede</CardTitle>
+          <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden">
+            <CardHeader className="flex flex-col gap-1 pb-2">
+              <CardTitle className="text-xl font-semibold text-[#1B4B7C] tracking-tight">
+                Distribuição por Rede
+              </CardTitle>
+              <p className="text-sm text-slate-500 font-medium">
+                Visualize a proporção de postagens por plataforma
+              </p>
             </CardHeader>
+
             <CardContent>
-              <div className="h-[280px]">
-                <ChartContainer config={chartConfig}>
-                  <ResponsiveContainer>
-                    {networkData.length <= 5 ? (
-                      <PieChart>
-                        <Pie data={networkData} dataKey="value" nameKey="name" outerRadius={100} label>
-                          {networkData.map((entry, index) => {
-                            const color = (chartConfig as any)[entry.name]?.color || "#94a3b8";
-                            return <Cell key={`cell-${index}`} fill={color} />;
-                          })}
-                        </Pie>
-                        <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                        <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-                      </PieChart>
-                    ) : (
-                      <BarChart data={networkData}>
-                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                        <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-                        <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                        <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                          {networkData.map((entry, index) => {
-                            const color = (chartConfig as any)[entry.name]?.color || "#94a3b8";
-                            return <Cell key={`cell-bar-${index}`} fill={color} />;
-                          })}
-                        </Bar>
-                      </BarChart>
-                    )}
-                  </ResponsiveContainer>
-                </ChartContainer>
+              <div className="h-[420px] w-full flex items-center justify-center">
+                {networkData?.length ? (
+                  <div className="w-full h-full">
+                    <ChartContainer
+                      config={chartConfig}
+                      className="w-full h-full"
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        {networkData.length <= 5 ? (
+                          <PieChart>
+                            <Pie
+                              data={networkData}
+                              dataKey="value"
+                              nameKey="name"
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={120}
+                              labelLine={false}
+                              label={({ name, percent }) =>
+                                `${name} ${(percent * 100).toFixed(0)}%`
+                              }
+                            >
+                              {networkData.map((entry, index) => {
+                                const color =
+                                  (chartConfig as any)[entry.name]?.color ||
+                                  "#94a3b8";
+                                return (
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={color}
+                                    className="transition-all duration-300 hover:opacity-80"
+                                  />
+                                );
+                              })}
+                            </Pie>
+                            <ChartTooltip
+                              content={<ChartTooltipContent nameKey="name" />}
+                              cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                            />
+                            <ChartLegend
+                              content={<ChartLegendContent nameKey="name" />}
+                              layout="horizontal"
+                              align="center"
+                              verticalAlign="bottom"
+                            />
+                          </PieChart>
+                        ) : (
+                          <BarChart data={networkData} barCategoryGap="25%">
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#e2e8f0"
+                            />
+                            <XAxis
+                              dataKey="name"
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fill: "#475569", fontSize: 12 }}
+                            />
+                            <YAxis
+                              allowDecimals={false}
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fill: "#475569", fontSize: 12 }}
+                            />
+                            <ChartTooltip
+                              content={<ChartTooltipContent nameKey="name" />}
+                              cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                            />
+                            <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                              {networkData.map((entry, index) => {
+                                const color =
+                                  (chartConfig as any)[entry.name]?.color ||
+                                  "#3B82F6";
+                                return (
+                                  <Cell
+                                    key={`cell-bar-${index}`}
+                                    fill={color}
+                                    className="transition-all duration-300 hover:opacity-80"
+                                  />
+                                );
+                              })}
+                            </Bar>
+                          </BarChart>
+                        )}
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
+                ) : (
+                  <div className="text-slate-500 text-sm italic">
+                    Nenhum dado disponível para exibir o gráfico.
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Atividades recentes */}
-          <Card className="bg-white/90 border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Activity className="w-5 h-5" /> Atividades Recentes</CardTitle>
+       
+          <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl lg:col-span-2">
+            <CardHeader className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <CardTitle className="flex items-center gap-2 text-[#1B4B7C] text-lg font-semibold tracking-tight">
+                <Activity className="w-5 h-5 text-[#1B4B7C]" /> Atividades
+                Recentes
+              </CardTitle>
+              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">
+                Atualizado em tempo real
+              </span>
             </CardHeader>
-            <CardContent>
+
+            <CardContent className="pt-5 px-4">
               {loading ? (
-                <div className="text-sm text-slate-500">Carregando...</div>
+                <div className="flex items-center justify-center text-slate-500 text-sm animate-pulse py-10">
+                  Carregando atividades...
+                </div>
               ) : recentReviews.length === 0 ? (
-                <div className="text-sm text-slate-500">Sem atividades recentes.</div>
+                <div className="flex flex-col items-center justify-center py-12 text-center text-slate-500">
+                  <Activity className="w-8 h-8 text-slate-400 mb-2" />
+                  <p className="text-sm">
+                    Nenhuma atividade recente encontrada.
+                  </p>
+                </div>
               ) : (
-                <ul className="space-y-4">
-                  {recentReviews.map((r) => (
-                    <li key={r.id} className="text-sm">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-700 font-medium">[{r.author_type || "cliente"}]</span>
-                          {clientNameByPostId[r.post_id] && (
-                            <Badge variant="outline" className="text-xs">{clientNameByPostId[r.post_id]}</Badge>
-                          )}
-                        </div>
-                        <span className="text-slate-500">{r.created_at ? format(new Date(r.created_at), "Pp", { locale: ptBR }) : ""}</span>
-                      </div>
-                      <div className="text-slate-700 whitespace-pre-wrap mt-1">{r.message || "Mensagem"}</div>
-                    </li>
-                  ))}
-                </ul>
+                <div className="overflow-x-auto rounded-xl border border-slate-100">
+                  <table className="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead className="bg-slate-100/60 text-slate-700">
+                      <tr>
+                        <th className="px-4 py-3 text-left font-semibold">
+                          Autor
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold">
+                          Cliente
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold">
+                          Mensagem
+                        </th>
+                        <th className="px-4 py-3 text-right font-semibold">
+                          Data
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {recentReviews.map((r) => (
+                        <tr
+                          key={r.id}
+                          className="hover:bg-slate-50/80 transition-colors duration-200"
+                        >
+                          <td className="px-4 py-3 text-[#1B4B7C] font-medium capitalize">
+                            {r.author_type === "user" ? "Usuário" : "Cliente"}
+                          </td>
+                          <td className="px-4 py-3">
+                            {clientNameByPostId[r.post_id] ? (
+                              <Badge
+                                variant="outline"
+                                className="text-[11px] px-2 py-0 border-[#1B4B7C]/30 text-[#1B4B7C]"
+                              >
+                                {clientNameByPostId[r.post_id]}
+                              </Badge>
+                            ) : (
+                              <span className="text-slate-400 text-xs italic">
+                                —
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-slate-700 whitespace-pre-wrap max-w-[300px] truncate">
+                            {r.message || "Mensagem não disponível"}
+                          </td>
+                          <td className="px-4 py-3 text-right text-slate-500 text-xs">
+                            {r.created_at
+                              ? format(
+                                  new Date(r.created_at),
+                                  "dd/MM/yyyy • HH:mm",
+                                  {
+                                    locale: ptBR,
+                                  }
+                                )
+                              : ""}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -285,9 +488,17 @@ export default function Painel() {
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow><TableCell colSpan={4} className="text-slate-500">Carregando...</TableCell></TableRow>
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-slate-500">
+                        Carregando...
+                      </TableCell>
+                    </TableRow>
                   ) : recentPosts.length === 0 ? (
-                    <TableRow><TableCell colSpan={4} className="text-slate-500">Nenhum post recente.</TableCell></TableRow>
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-slate-500">
+                        Nenhum post recente.
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     recentPosts.map((p) => (
                       <TableRow key={p.id} className="hover:bg-slate-50">
@@ -302,13 +513,17 @@ export default function Painel() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">
-                            {p.status}
-                          </Badge>
+                          <Badge variant="outline">{p.status}</Badge>
                         </TableCell>
-                        <TableCell className="capitalize">{p.social_network || "-"}</TableCell>
+                        <TableCell className="capitalize">
+                          {p.social_network || "-"}
+                        </TableCell>
                         <TableCell>
-                          {p.publish_date ? format(new Date(p.publish_date), "Pp", { locale: ptBR }) : "-"}
+                          {p.publish_date
+                            ? format(new Date(p.publish_date), "Pp", {
+                                locale: ptBR,
+                              })
+                            : "-"}
                         </TableCell>
                       </TableRow>
                     ))
