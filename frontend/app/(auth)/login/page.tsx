@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client"
+import { Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { SignInPage } from "@/src/presentation/modules/auth/components/sign-in-page"
 import { useAuth } from "@/lib/auth-context"
@@ -8,7 +9,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
-export default function Login() {
+function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { signIn } = useAuth()
@@ -39,7 +40,8 @@ export default function Login() {
     }
     toast.success("Login realizado")
     const redirect = searchParams?.get("redirect")
-    router.replace(redirect || "/paniel")
+    const target = redirect ? decodeURIComponent(redirect) : "/visao-geral"
+    router.replace(target)
   })
 
   const handleResetPassword = () => {
@@ -60,5 +62,13 @@ export default function Login() {
       errors={errors}
       isSubmitting={isSubmitting}
     />
+  )
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   )
 }

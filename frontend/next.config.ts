@@ -1,7 +1,8 @@
+// next.config.ts
 import type { NextConfig } from "next";
+import { withNextVideo } from "next-video/process";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
     remotePatterns: [
       {
@@ -9,7 +10,7 @@ const nextConfig: NextConfig = {
         hostname: "**", // Permite imagens de qualquer domínio HTTPS
       },
     ],
-  }
+  },
 };
 
-export default nextConfig;
+export default withNextVideo(nextConfig);

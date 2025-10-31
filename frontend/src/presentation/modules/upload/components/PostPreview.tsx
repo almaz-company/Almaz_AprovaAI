@@ -1,5 +1,6 @@
 "use client";
 
+import Video from "next-video";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Eye, Image as ImageIcon, FileText } from "lucide-react";
@@ -65,7 +66,7 @@ export function PostPreview({ formData, uploadedFile }: PostPreviewProps) {
         <div className="aspect-square bg-slate-900 rounded-xl overflow-hidden mb-4 flex items-center justify-center">
           {uploadedFile?.url ? (
             isVideoFile(uploadedFile.url) ? (
-              <video
+              <Video
                 src={uploadedFile.url}
                 controls
                 className="w-full h-full object-cover"
@@ -154,3 +155,4 @@ export function PostPreview({ formData, uploadedFile }: PostPreviewProps) {
     </Card>
   );
 }
+

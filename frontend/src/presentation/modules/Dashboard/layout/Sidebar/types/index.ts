@@ -18,11 +18,15 @@ export type SidebarContextType = {
   toggleSubmenu: (item: string) => void;
 };
 
-export type Theme = "light" | "dark";
+export type Theme = "light" | "dark" | "system";
 
 export type ThemeContextType = {
   theme: Theme;
+  effectiveTheme: Exclude<Theme, "system">;
   toggleTheme: () => void;
+  setTheme: (t: Theme) => void;
+  followSystem: boolean;
+  setFollowSystem: (v: boolean) => void;
 };
 
 export interface SearchItem {

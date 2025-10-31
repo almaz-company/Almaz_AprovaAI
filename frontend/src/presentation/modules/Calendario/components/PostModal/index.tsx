@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Video from "next-video";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -153,14 +154,12 @@ export function PostModal({ post, isOpen, onClose, onUpdate }: PostModalProps) {
           {post.media_url && (
             <div className="bg-slate-100 rounded-xl overflow-hidden mb-4 max-h-[500px] flex items-center justify-center">
               {isVideo ? (
-                <video
+                <Video
                   src={post.media_url}
                   controls
                   className="w-full max-h-[500px] rounded-xl object-contain"
                   preload="metadata"
-                >
-                  Seu navegador não suporta o elemento de vídeo.
-                </video>
+                 />
               ) : /\.(jpeg|jpg|gif|png)$/i.test(post.media_url) ? (
                 <img
                   src={post.media_url}
@@ -249,3 +248,5 @@ export function PostModal({ post, isOpen, onClose, onUpdate }: PostModalProps) {
     </Dialog>
   );
 }
+
+

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState, FormEvent } from "react";
+import React, { useEffect, useState, FormEvent, Suspense } from "react";
 import { ArrowLeft, ArrowRight, FileText, Calendar, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +19,7 @@ import { listClients } from "@/lib/clients";
 import { supabase } from "@/lib/supabase/client";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function UploadPage() {
+function UploadPageContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -162,6 +162,30 @@ export default function UploadPage() {
       const saved = await saveFileMetadata(info, user.id);
       setUploadedFile({ url: info.signedUrl || undefined, name: file.name });
       setUploadedFileId(saved.id);
+
+      // Dispara processamento via next-video quando for um arquivo de vídeo
+      if (file.type?.startsWith("video")) {
+        const videoUrl = info.signedUrl || info.publicUrl;
+        if (videoUrl) {
+          try {
+            const res = await fetch(`/api/video`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: videoUrl }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              throw new Error(data?.error || "Falha ao processar vídeo com next-video");
+            }
+            toast.success("Vídeo em processamento (next-video)");
+          } catch (e: any) {
+            toast.error("Não foi possível iniciar o processamento do vídeo", {
+              description: e?.message || String(e),
+            });
+          }
+        }
+      }
+
       toast.success("Arquivo enviado com sucesso");
     } catch (err: any) {
       toast.error("Erro ao enviar arquivo", { description: err?.message || String(err) });
@@ -345,6 +369,14 @@ export default function UploadPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function UploadPage() {
+  return (
+    <Suspense fallback={null}>
+      <UploadPageContent />
+    </Suspense>
   );
 }
 

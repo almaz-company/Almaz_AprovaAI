@@ -1,12 +1,17 @@
+"use client";
+import React from "react";
+import { Providers } from "../providers";
+
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
   return (
-    <main>
-      {children}
-    </main>
+    <Providers>
+      <main>
+        {children}
+      </main>
+    </Providers>
   );
 }

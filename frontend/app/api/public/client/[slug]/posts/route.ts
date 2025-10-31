@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
 
     const { data: posts, error: postsErr } = await supabase
       .from("posts")
-      .select("id, title, tema, especificacao, tipo_conteudo, social_network, publish_date, status")
+      .select("*")
       .eq("client_id", client.id)
       .order("publish_date", { ascending: false })
     if (postsErr) throw postsErr
@@ -40,7 +40,18 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
           .createSignedUrl(f.path, 60 * 60 * 24) // 24h
         media_url = signed?.signedUrl
       }
-      enriched.push({ ...p, media_url })
+      enriched.push({
+        id: p.id,
+        title: p.title,
+        tema: p.tema,
+        especificacao: p.especificacao,
+        content: (p as any).content ?? p.especificacao ?? null,
+        tipo_conteudo: p.tipo_conteudo,
+        social_network: p.social_network,
+        publish_date: p.publish_date,
+        status: p.status,
+        media_url,
+      })
     }
 
     return NextResponse.json({ client, posts: enriched })

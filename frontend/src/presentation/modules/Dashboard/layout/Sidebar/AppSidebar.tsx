@@ -2,18 +2,22 @@
 "use client";
 import React, { useEffect, useRef, useState,useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSidebar } from "./context/SidebarContext";
 import { useTheme } from "./context/ThemeContext";
-import { ChevronDownIcon, LucideGripHorizontal } from "lucide-react";
+import { ChevronDownIcon, LucideGripHorizontal, LogOut } from "lucide-react";
 import { navItems } from "./links/NavItem";
 import { othersItems } from "./links/OthersItems";
 import { NavItem } from "./types";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
 
 const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
-  const { theme } = useTheme()
+  const { effectiveTheme } = useTheme()
+  const { signOut } = useAuth();
+  const router = useRouter();
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -248,7 +252,7 @@ const AppSidebar = () => {
           ) : (
             <img
               src={
-                theme === "dark"
+                effectiveTheme === "dark"
                   ? "/images/logo/Símbolo negativo.png" // versão branca
                   : "/images/logo/Símbolo positivo.png" // versão padrão
               }
@@ -297,6 +301,19 @@ const AppSidebar = () => {
             </div>
           </div>
         </nav>
+      </div>
+      <div className="mt-auto border-t border-gray-200 dark:border-gray-800 py-4">
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-2"
+          onClick={async () => {
+            await signOut();
+            router.replace("/login");
+          }}
+        >
+          <LogOut className="w-4 h-4" />
+          Sair
+        </Button>
       </div>
     </aside>
   );

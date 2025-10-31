@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -140,6 +141,7 @@ export function WeeklyCalendarView({
                     {dayPosts.map((post, index) => (
                       <Draggable key={post.id} draggableId={post.id} index={index}>
                         {(provided, snapshot) => (
+                          //@ts-ignore
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
