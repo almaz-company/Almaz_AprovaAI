@@ -67,7 +67,8 @@ export default function PostsPage() {
         title: p.title || "Sem titulo",
         content: p.content ?? p.especificacao ?? null,
         social_network: p.social_network || "",
-        publish_date: p.publish_date || p.created_at || new Date().toISOString(),
+        publish_date:
+          p.publish_date || p.created_at || new Date().toISOString(),
         priority: p.priority ?? null,
         status: p.status || "pendente",
         media_url: undefined,
@@ -75,7 +76,9 @@ export default function PostsPage() {
         tema: p.tema ?? null,
         especificacao: p.especificacao ?? null,
         client_id: p.client_id ?? null,
-        client_name: p.client_id ? clientMap[String(p.client_id)] || null : null,
+        client_name: p.client_id
+          ? clientMap[String(p.client_id)] || null
+          : null,
       }));
       setPosts(mapped);
     } catch (e) {
@@ -85,60 +88,103 @@ export default function PostsPage() {
     }
   }
 
-  useEffect(() => { load(); }, [user?.id]);
+  useEffect(() => {
+    load();
+  }, [user?.id]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return posts;
-    return posts.filter(p =>
-      (p.title || "").toLowerCase().includes(q) ||
-      (p.content || "").toLowerCase().includes(q) ||
-      (p.tema || "").toLowerCase().includes(q)
+    return posts.filter(
+      (p) =>
+        (p.title || "").toLowerCase().includes(q) ||
+        (p.content || "").toLowerCase().includes(q) ||
+        (p.tema || "").toLowerCase().includes(q)
     );
   }, [posts, query]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Posts</h1>
+    <div className="space-y-8">
+      {/* Header com título e busca */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-[#1B4B7C]">
+            Gerenciamento de Posts
+          </h1>
+          <p className="text-slate-500 text-sm font-medium mt-1">
+            Visualize, filtre e gerencie publicações recentes.
+          </p>
+        </div>
+
         <div className="flex items-center gap-2">
-          <Input
-            placeholder="Buscar por titulo, tema ou texto..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-64"
-          />
-          {/*
-          <Button onClick={() => router.push("/upload")}>Novo Post</Button>
-          */}
-          
+          <div className="relative">
+            <Input
+              placeholder="Buscar por título, tema ou texto..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-72 pl-10 pr-3 py-2 rounded-xl border border-slate-200 shadow-sm focus:border-[#1B4B7C]/70 focus:ring-2 focus:ring-[#1B4B7C]/20 transition-all duration-200 placeholder:text-slate-400"
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="absolute left-3 top-2.5 h-5 w-5 text-slate-400 pointer-events-none"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
+              />
+            </svg>
+          </div>
+
+          {/* Botão de Novo Post */}
+          <Button
+            onClick={() => router.push("/upload")}
+            className="rounded-xl bg-[#1B4B7C] hover:bg-[#163b64] text-white font-medium px-4 py-2 shadow-sm transition-all duration-200"
+          >
+            Novo Post
+          </Button>
         </div>
       </div>
 
+      {/* Lista de posts */}
       <ListView
-      //@ts-ignore
+        //@ts-ignore
         posts={filtered}
         loading={loading}
-        onPostClick={(p) => { setSelected(p); setOpen(true); }}
+        onPostClick={(p) => {
+          setSelected(p);
+          setOpen(true);
+        }}
         onStatusUpdate={() => load()}
         onClientClick={(name) => setQuery(name)}
       />
 
+      {/* Modal de post */}
       <PostModal
         post={selected as any}
         isOpen={open}
         onClose={() => setOpen(false)}
         onUpdate={() => load()}
-        onClientClick={(name) => { setQuery(name); setOpen(false); }}
+        onClientClick={(name) => {
+          setQuery(name);
+          setOpen(false);
+        }}
       />
 
+      {/* Estado vazio */}
       {!loading && filtered.length === 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Nenhum post encontrado</CardTitle>
+        <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-md rounded-2xl p-6 text-center">
+          <CardHeader className="pb-0">
+            <CardTitle className="text-lg font-semibold text-[#1B4B7C]">
+              Nenhum post encontrado
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            Tente ajustar a busca ou crie um novo post.
+          <CardContent className="text-slate-500 mt-2">
+            Tente ajustar sua busca ou crie um novo post para começar.
           </CardContent>
         </Card>
       )}
