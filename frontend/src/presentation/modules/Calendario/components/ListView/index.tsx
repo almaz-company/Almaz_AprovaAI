@@ -221,8 +221,8 @@ export function ListView({
       <CardContent>
         <div className="space-y-4">
           {posts.map((post) => {
-            const statusConfig = getStatusConfig(post.status);
-            const StatusIcon = statusConfig.icon;
+            //const statusConfig = getStatusConfig(post.status);
+            //const StatusIcon = statusConfig.icon;
             const stages = deriveStageStatuses(post.status);
 
             return (
