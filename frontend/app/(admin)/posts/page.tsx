@@ -104,25 +104,26 @@ export default function PostsPage() {
   }, [posts, query]);
 
   return (
-    <div className="space-y-8">
-      {/* Header com título e busca */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-10">
+      {/* Cabeçalho */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#1B4B7C]">
+          <h1 className="text-3xl font-bold tracking-tight text-[#053665]">
             Gerenciamento de Posts
           </h1>
           <p className="text-slate-500 text-sm font-medium mt-1">
-            Visualize, filtre e gerencie publicações recentes.
+            Visualize, filtre e gerencie publicações recentes com facilidade.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* Campo de busca */}
           <div className="relative">
             <Input
               placeholder="Buscar por título, tema ou texto..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-72 pl-10 pr-3 py-2 rounded-xl border border-slate-200 shadow-sm focus:border-[#1B4B7C]/70 focus:ring-2 focus:ring-[#1B4B7C]/20 transition-all duration-200 placeholder:text-slate-400"
+              className="w-72 pl-10 pr-3 py-2 rounded-xl border border-slate-200 shadow-sm focus:border-[#053665]/70 focus:ring-2 focus:ring-[#053665]/15 transition-all duration-200 placeholder:text-slate-400"
             />
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -140,30 +141,46 @@ export default function PostsPage() {
             </svg>
           </div>
 
-          {/* Botão de Novo Post */}
+          {/* Botão Novo Post */}
           <Button
             onClick={() => router.push("/upload")}
-            className="rounded-xl bg-[#1B4B7C] hover:bg-[#163b64] text-white font-medium px-4 py-2 shadow-sm transition-all duration-200"
+            className="rounded-xl bg-[#053665] hover:bg-[#042B52] text-white font-medium px-5 py-2.5 shadow-sm transition-all duration-200 flex items-center gap-2"
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
             Novo Post
           </Button>
         </div>
       </div>
 
-      {/* Lista de posts */}
-      <ListView
-        //@ts-ignore
-        posts={filtered}
-        loading={loading}
-        onPostClick={(p) => {
-          setSelected(p);
-          setOpen(true);
-        }}
-        onStatusUpdate={() => load()}
-        onClientClick={(name) => setQuery(name)}
-      />
+      {/* Lista de Posts */}
+      <div className="bg-white/90 border border-slate-200 rounded-2xl shadow-sm p-4 transition-all duration-300 hover:shadow-md">
+        <ListView
+          //@ts-ignore
+          posts={filtered}
+          loading={loading}
+          onPostClick={(p) => {
+            setSelected(p);
+            setOpen(true);
+          }}
+          onStatusUpdate={() => load()}
+          onClientClick={(name) => setQuery(name)}
+        />
+      </div>
 
-      {/* Modal de post */}
+      {/* Modal do Post */}
       <PostModal
         post={selected as any}
         isOpen={open}
@@ -174,20 +191,6 @@ export default function PostsPage() {
           setOpen(false);
         }}
       />
-
-      {/* Estado vazio */}
-      {!loading && filtered.length === 0 && (
-        <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-md rounded-2xl p-6 text-center">
-          <CardHeader className="pb-0">
-            <CardTitle className="text-lg font-semibold text-[#1B4B7C]">
-              Nenhum post encontrado
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-slate-500 mt-2">
-            Tente ajustar sua busca ou crie um novo post para começar.
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
