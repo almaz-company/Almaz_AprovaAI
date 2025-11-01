@@ -84,6 +84,59 @@ const getStatusConfig = (status: string) => {
   return configs[status] || configs.pendente;
 };
 
+// ===== Deriva status por etapa (Roteiro/Conteúdo) =====
+type StageStatus = "pendente" | "aprovado" | "rejeitado" | "em_revisao";
+
+const deriveStageStatuses = (status: string): { roteiro: StageStatus; conteudo: StageStatus } => {
+  const s = (status || "").toLowerCase();
+  if (s.startsWith("tema_")) {
+    const step = s.replace("tema_", "") as StageStatus;
+    return { roteiro: step, conteudo: "pendente" };
+  }
+  if (s.startsWith("conteudo_")) {
+    const step = s.replace("conteudo_", "") as StageStatus;
+    return { roteiro: "aprovado", conteudo: step };
+  }
+  switch (s) {
+    case "pendente":
+      return { roteiro: "pendente", conteudo: "pendente" };
+    case "em_revisao":
+      return { roteiro: "aprovado", conteudo: "em_revisao" };
+    case "aprovado":
+    case "publicado":
+      return { roteiro: "aprovado", conteudo: "aprovado" };
+    case "rejeitado":
+      return { roteiro: "aprovado", conteudo: "rejeitado" };
+    default:
+      return { roteiro: "pendente", conteudo: "pendente" };
+  }
+};
+
+const getStageBadgeStyles = (stage: StageStatus) => {
+  const map: Record<StageStatus, string> = {
+    aprovado: "bg-green-50 text-green-700 border border-green-200",
+    pendente: "bg-amber-50 text-amber-700 border border-amber-200",
+    rejeitado: "bg-red-50 text-red-700 border border-red-200",
+    em_revisao: "bg-blue-50 text-blue-700 border border-blue-200",
+  };
+  return map[stage] || map.pendente;
+};
+
+const stageLabel = (stage: StageStatus) => {
+  switch (stage) {
+    case "aprovado":
+      return "APROVADO";
+    case "pendente":
+      return "PENDENTE";
+    case "rejeitado":
+      return "REJEITADO";
+    case "em_revisao":
+      return "EM REVISÃO";
+    default:
+      return String(stage).toUpperCase();
+  }
+};
+
 // ===== Componente principal =====
 export function ListView({
   posts,
@@ -170,6 +223,7 @@ export function ListView({
           {posts.map((post) => {
             const statusConfig = getStatusConfig(post.status);
             const StatusIcon = statusConfig.icon;
+            const stages = deriveStageStatuses(post.status);
 
             return (
               <div
@@ -186,18 +240,41 @@ export function ListView({
                       {post.content || "Sem descrição"}
                     </p>
                   </div>
-                  <Badge
-                    className={cn(
-                      statusConfig.color,
-                      "border flex items-center gap-1 ml-4 capitalize"
-                    )}
-                  >
-                    <StatusIcon className="w-3 h-3" />
-                    {post.status.replace("_", " ")}
-                  </Badge>
+                 
+                   {/* Indicadores de etapas (Roteiro / Conteúdo) */}
+                  <div className="ml-auto hidden sm:flex items-center gap-6">
+                    <div className="text-right">
+                      <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        Roteiro
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "rounded-full px-2.5 py-0.5 text-[11px] font-medium",
+                          getStageBadgeStyles(stages.roteiro)
+                        )}
+                      >
+                        {stageLabel(stages.roteiro)}
+                      </Badge>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                        Conteúdo
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "rounded-full px-2.5 py-0.5 text-[11px] font-medium",
+                          getStageBadgeStyles(stages.conteudo)
+                        )}
+                      >
+                        {stageLabel(stages.conteudo)}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
                   {/* Informações da postagem */}
                   <div className="flex items-center gap-4 text-sm text-slate-500">
                     {post.client_name && (
@@ -224,7 +301,9 @@ export function ListView({
                         locale: ptBR,
                       })}
                     </span>
-
+                    {/*
+                    
+                    */}
                     {post.priority && post.priority !== "media" && (
                       <Badge
                         className={cn(
@@ -240,6 +319,8 @@ export function ListView({
                       </Badge>
                     )}
                   </div>
+
+                 
 
                   {/* Botões de ação */}
                   {post.status === "pendente" && (
