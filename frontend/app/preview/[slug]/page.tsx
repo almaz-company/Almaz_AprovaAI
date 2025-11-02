@@ -22,9 +22,8 @@ import {
   startOfWeek,
   endOfWeek,
 } from "date-fns";
-import { ptBR, tr } from "date-fns/locale";
+import { ptBR } from "date-fns/locale";
 import Image from "next/image";
-import { SocialIcon } from "@/src/presentation/modules/Preview/components/SocialMedia";
 import { Badge } from "@/components/ui/badge";
 
 type Post = {
@@ -57,6 +56,7 @@ export default function PublicClientPreviewPage() {
   const [adjustError, setAdjustError] = useState<string | null>(null);
   const [speaking, setSpeaking] = useState(false);
 
+  // 🔹 Carregar posts e cliente
   async function load() {
     try {
       setLoading(true);
@@ -65,11 +65,12 @@ export default function PublicClientPreviewPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Erro ao carregar preview");
+
       setClient(data.client);
       setPosts(
         (data.posts || []).map((p: any) => ({
           ...p,
-          date: new Date(p.publish_date),
+          date: new Date(p.publish_date || new Date().toISOString()),
         }))
       );
     } catch (e: any) {
@@ -83,6 +84,7 @@ export default function PublicClientPreviewPage() {
     load();
   }, [slug]);
 
+  // 🔹 Datas e semanas
   const allDays = useMemo(() => {
     const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 1 });
     const end = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 1 });
@@ -117,21 +119,23 @@ export default function PublicClientPreviewPage() {
         : null,
     [daysForWeek]
   );
-  const weekPosts = useMemo(
-    () =>
-      posts.filter(
-        (p: any) =>
-          weekRange && p.date >= weekRange.start && p.date <= weekRange.end
-      ),
-    [posts, weekRange]
-  );
+
+  // 🔹 Filtro com fallback
+  const weekPosts = useMemo(() => {
+    if (!weekRange) return posts;
+    const filtered = posts.filter(
+      (p: any) => p.date >= weekRange.start && p.date <= weekRange.end
+    );
+    return filtered.length > 0 ? filtered : posts;
+  }, [posts, weekRange]);
 
   useEffect(() => {
     setSelectedIndex(0);
   }, [weekIndex, currentMonth, posts.length]);
+
   const selected = weekPosts[selectedIndex];
 
-  // Media helpers
+  // 🔹 Verificar mídia
   const isVideo = !!(
     selected?.media_url &&
     (/\.(mp4|mov|avi|mkv|webm)$/i.test(selected.media_url) ||
@@ -139,6 +143,7 @@ export default function PublicClientPreviewPage() {
         (selected?.tipo_conteudo || "").toLowerCase()
       ))
   );
+
   const isImage = !!(
     selected?.media_url &&
     (/\.(jpeg|jpg|gif|png|webp|avif|bmp)$/i.test(selected.media_url) ||
@@ -147,6 +152,7 @@ export default function PublicClientPreviewPage() {
       ))
   );
 
+  // 🔹 Histórico de interações
   useEffect(() => {
     async function loadHistory() {
       if (!selected?.id) {
@@ -162,6 +168,7 @@ export default function PublicClientPreviewPage() {
     loadHistory();
   }, [selected?.id]);
 
+  // 🔹 Atualizar status
   async function updateStatus(id: string, status: string) {
     const res = await fetch(`/api/public/posts/${id}/status`, {
       method: "POST",
@@ -175,11 +182,12 @@ export default function PublicClientPreviewPage() {
       status === "aprovado"
         ? "Post aprovado"
         : status === "em_revisao"
-        ? "Marcado para revisao"
+        ? "Marcado para revisão"
         : "Atualizado"
     );
   }
 
+  // 🔹 Falar conteúdo
   function toggleSpeak(text?: string) {
     if (!text) return;
     try {
@@ -199,6 +207,7 @@ export default function PublicClientPreviewPage() {
     }
   }
 
+  // 🔹 Enviar solicitação de ajuste
   async function submitAdjust() {
     if (!selected?.id) return;
     const text = (adjustText || "").trim();
@@ -208,14 +217,14 @@ export default function PublicClientPreviewPage() {
     }
     try {
       setAdjustLoading(true);
-      const res = await fetch(`/api/public/posts/${selected?.id}/reviews`, {
+      const res = await fetch(`/api/public/posts/${selected.id}/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text }),
       });
       if (res.ok) {
-        await updateStatus(selected!.id, "em_revisao");
-        const r = await fetch(`/api/posts/${selected!.id}/reviews`);
+        await updateStatus(selected.id, "em_revisao");
+        const r = await fetch(`/api/posts/${selected.id}/reviews`);
         const d = await r.json();
         setHistory(d.reviews || []);
         setAdjustOpen(false);
@@ -232,6 +241,7 @@ export default function PublicClientPreviewPage() {
     }
   }
 
+  // 🔹 UI
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white p-6">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -341,43 +351,32 @@ export default function PublicClientPreviewPage() {
             {/* Coluna principal */}
             <div className="lg:col-span-2">
               {/* Mídia */}
-              <div className="relative bg-slate-200 rounded-xl overflow-hidden min-h-[420px] flex items-center justify-center">
-                {selected?.media_url ? (
-                  isVideo ? (
-                    <Video
-                      src={selected.media_url}
-                      controls
-                      autoPlay
-                      playsInline
-                      muted
-                      className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
-                    />
-                  ) : isImage ? (
-                    <img
-                      src={selected.media_url}
-                      alt="media preview"
-                      className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
-                    />
-                  ) : (
-                    <a
-                      href={selected.media_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 underline p-4 block"
-                    >
-                      Ver arquivo anexo
-                    </a>
-                  )
-                ) : (
-                  <div className="text-slate-500 text-sm font-medium">
-                    Sem mídia
-                  </div>
-                )}
-              </div>
+              <div className="relative bg-slate-200 rounded-xl overflow-hidden min-h-[420px] flex items-center justify-center shadow-sm">
+  {selected?.media_url ? (
+    isVideo ? (
+      <Video
+        src={selected.media_url}
+        controls
+        autoPlay
+        playsInline
+        muted
+        className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
+      />
+    ) : (
+      <img
+        src={selected.media_url}
+        alt="media preview"
+        className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
+      />
+    )
+  ) : (
+    <div className="text-slate-500 text-sm font-medium">Sem mídia</div>
+  )}
+</div>
+
 
               {/* Dados */}
               <div className="space-y-4 mt-6">
-                {/* Tema */}
                 <div className="bg-white/90 border border-slate-200 rounded-xl p-4 shadow-sm">
                   <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
                     Tema
@@ -387,7 +386,6 @@ export default function PublicClientPreviewPage() {
                   </div>
                 </div>
 
-                {/* Títulos */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-white/90 border border-slate-200 rounded-xl p-4 shadow-sm">
                     <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
@@ -402,12 +400,11 @@ export default function PublicClientPreviewPage() {
                       Título do Conteúdo
                     </div>
                     <div className="text-slate-900 font-medium truncate">
-                      {selected?.title || "Sem título"}
+                      {selected?.content || selected?.title || "Sem título"}
                     </div>
                   </div>
                 </div>
 
-                {/* Especificação */}
                 <div className="bg-white/90 border border-slate-200 rounded-xl p-4 shadow-sm">
                   <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
                     Especificação do Conteúdo
@@ -417,7 +414,6 @@ export default function PublicClientPreviewPage() {
                   </div>
                 </div>
 
-                {/* Canal */}
                 <div className="bg-white/90 border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between">
                   <div>
                     <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
@@ -456,7 +452,6 @@ export default function PublicClientPreviewPage() {
               </div>
             </div>
 
-            {/* Histórico */}
             {/* Histórico */}
             <Card className="border-slate-200 bg-white/90 shadow-sm rounded-xl">
               <CardContent className="p-5">
