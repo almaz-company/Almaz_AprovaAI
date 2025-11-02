@@ -3,8 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 

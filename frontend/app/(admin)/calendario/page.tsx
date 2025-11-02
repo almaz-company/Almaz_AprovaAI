@@ -214,7 +214,6 @@ export default function CalendarPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os clientes</SelectItem>
-                <SelectItem value="none">Sem cliente</SelectItem>
                 {clients.map((c) => (
                   <SelectItem key={c.id} value={c.id}>{c.company_name}</SelectItem>
                 ))}
@@ -233,11 +232,6 @@ export default function CalendarPage() {
                 <SelectItem value="alta">Alta</SelectItem>
               </SelectContent>
             </Select>
-
-            <Button className="h-9 bg-blue-600 hover:bg-blue-700" onClick={() => router.push("/upload")}>
-              <Plus className="w-4 h-4 mr-2" />
-              Criar
-            </Button>
           </div>
         </div>
 

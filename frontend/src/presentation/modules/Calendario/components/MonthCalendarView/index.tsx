@@ -1,8 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
 import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   startOfMonth,
   endOfMonth,
@@ -17,6 +16,7 @@ import {
 import { ptBR } from "date-fns/locale";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 // ===== Tipagem =====
 type Post = {
@@ -36,10 +36,10 @@ type MonthCalendarViewProps = {
 // ===== Cor do status =====
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
-    tema_pendente: "#f59e0b", // amber-500
-    tema_aprovado: "#22c55e", // green-500
-    tema_rejeitado: "#ef4444", // red-500
-    conteudo_pendente: "#3b82f6", // blue-500
+    tema_pendente: "#f59e0b",
+    tema_aprovado: "#22c55e",
+    tema_rejeitado: "#ef4444",
+    conteudo_pendente: "#3b82f6",
     conteudo_aprovado: "#22c55e",
     conteudo_rejeitado: "#ef4444",
     pendente: "#f59e0b",
@@ -47,7 +47,7 @@ const getStatusColor = (status: string) => {
     aprovado: "#22c55e",
     rejeitado: "#ef4444",
   };
-  return colors[status] || "#6b7280"; // gray-500
+  return colors[status] || "#6b7280";
 };
 
 const weekDayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -59,7 +59,6 @@ export function MonthCalendarView({
   onPostClick,
   loading = false,
 }: MonthCalendarViewProps) {
-  // === Datas base do mês ===
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const startDate = startOfWeek(monthStart, { locale: ptBR });
@@ -72,38 +71,36 @@ export function MonthCalendarView({
     day = addDays(day, 1);
   }
 
-  // === Posts por dia ===
   const getPostsForDay = (day: Date) =>
     posts.filter(
-      (post) =>
-        post.publish_date && isSameDay(new Date(post.publish_date), day)
+      (post) => post.publish_date && isSameDay(new Date(post.publish_date), day)
     );
 
-  // === Estado de carregamento ===
   if (loading) {
     return (
-      <div className="h-full p-4">
-        <div className="h-full bg-slate-50 rounded-lg animate-pulse" />
+      <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl animate-pulse">
+        {" "}
+        <span className="text-slate-400 font-medium text-sm">
+          Carregando calendário...{" "}
+        </span>{" "}
       </div>
     );
   }
 
-  // === Render principal ===
   return (
-    <div className="h-full flex flex-col">
-      {/* Cabeçalho dos dias da semana */}
-      <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
+    <div className="h-full flex flex-col rounded-xl border border-slate-200 overflow-hidden shadow-sm bg-white/90 backdrop-blur-sm">
+      {/* Cabeçalho dos dias */}{" "}
+      <div className="grid grid-cols-7 border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-slate-50">
         {weekDayNames.map((day) => (
           <div
             key={day}
-            className="p-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wide"
+            className="p-3 text-center text-[11px] font-semibold tracking-wide text-slate-600 uppercase select-none"
           >
-            {day}
+            {day}{" "}
           </div>
-        ))}
+        ))}{" "}
       </div>
-
-      {/* Grade de dias do mês */}
+      {/* Grade de dias */}
       <div className="flex-1 grid grid-cols-7 auto-rows-fr border-l border-t border-slate-200">
         {days.map((day) => {
           const dayPosts = getPostsForDay(day);
@@ -117,34 +114,35 @@ export function MonthCalendarView({
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                   className={cn(
-                    "border-r border-b border-slate-200 p-2 min-h-[100px] transition-colors overflow-hidden",
+                    "border-r border-b p-2 min-h-[110px] transition-all duration-200 relative",
                     snapshot.isDraggingOver
-                      ? "bg-blue-50"
-                      : "bg-white hover:bg-slate-50",
-                    !isCurrentMonth && "bg-slate-50/50"
+                      ? "bg-blue-50/70 shadow-inner"
+                      : "bg-white hover:bg-slate-50/80",
+                    !isCurrentMonth && "bg-slate-50/60"
                   )}
                 >
-                  {/* Número do dia */}
+                  {/* Dia */}
                   <div className="flex items-center justify-between mb-1">
                     <div
                       className={cn(
-                        "text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full",
-                        isTodayDate && "bg-blue-600 text-white",
-                        !isCurrentMonth && !isTodayDate
-                          ? "text-slate-400"
-                          : "text-slate-700"
+                        "w-7 h-7 flex items-center justify-center rounded-full text-[12px] font-semibold transition-all",
+                        isTodayDate
+                          ? "bg-[#053665] text-white shadow-sm"
+                          : isCurrentMonth
+                          ? "text-slate-700"
+                          : "text-slate-400"
                       )}
                     >
                       {format(day, "d")}
                     </div>
                     {dayPosts.length > 3 && (
-                      <span className="text-xs text-slate-500 font-medium">
+                      <span className="text-[10px] text-slate-400 font-medium">
                         +{dayPosts.length - 3}
                       </span>
                     )}
                   </div>
 
-                  {/* Postagens do dia */}
+                  {/* Postagens */}
                   <div className="space-y-1">
                     {dayPosts.slice(0, 3).map((post, index) => {
                       const color = getStatusColor(post.status);
@@ -155,18 +153,22 @@ export function MonthCalendarView({
                           index={index}
                         >
                           {(provided, snapshot) => (
-                            <div
+                            //@ts-ignore
+                            <motion.div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               onClick={() => onPostClick(post)}
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.15 }}
                               className={cn(
-                                "group cursor-pointer px-2 py-1 rounded text-xs flex items-center gap-1.5 transition-all",
+                                "cursor-pointer px-2 py-1 rounded-md text-[11px] flex items-center gap-1.5 select-none group transition-all duration-150",
                                 snapshot.isDragging &&
-                                  "shadow-lg ring-2 ring-blue-800 hover:text-white"
+                                  "shadow-md ring-2 ring-blue-400 scale-[1.02]"
                               )}
                               style={{
-                                backgroundColor: `${color}20`,
+                                backgroundColor: `${color}12`,
                                 borderLeft: `3px solid ${color}`,
                                 ...provided.draggableProps.style,
                               }}
@@ -175,11 +177,10 @@ export function MonthCalendarView({
                                 className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                                 style={{ backgroundColor: color }}
                               />
-                              
-                              <span className="truncate text-slate-600 text-[11px]">
+                              <span className="truncate text-slate-700 group-hover:text-slate-900">
                                 {post.title}
                               </span>
-                            </div>
+                            </motion.div>
                           )}
                         </Draggable>
                       );

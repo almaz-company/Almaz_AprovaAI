@@ -1,9 +1,11 @@
 "use client";
-import { useSidebar } from "@/src/presentation/modules/Dashboard/layout/Sidebar/context/SidebarContext";
-import AppSidebar from "@/src/presentation/modules/Dashboard/layout/Sidebar/AppSidebar";
-import Backdrop from "@/src/presentation/modules/Dashboard/layout/Sidebar/Backdrop";
+
 import React from "react";
-import { Providers } from "../providers";
+
+
+import AppSidebar from "@/src/presentation/modules/Dashboard/layout/Sidebar/AppSidebar";
+import AppHeader from "@/src/presentation/modules/Dashboard/layout/Header/AppHeader";
+import { useSidebar } from "@/src/presentation/modules/Dashboard/layout/Sidebar/context/SidebarContext";
 
 export default function AdminLayout({
   children,
@@ -19,19 +21,26 @@ export default function AdminLayout({
     : "lg:ml-[90px]";
 
   return (
-    <Providers>
-      <div className="min-h-screen xl:flex">
-        <AppSidebar />
+    <div className="min-h-screen xl:flex">
+      
 
-        <div
-          className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
-        >
-          <Backdrop />
-          <div className="p-4 mx-auto max-w-[var(--breakpoint-2xl)] md:p-6">
-            {children}
-          </div>
+      {/* Sidebar and Backdrop */}
+      <AppSidebar />
+     
+      
+      {/* Main Content Area */}
+      <div
+        className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
+      >
+       
+
+        {/* Page Content */}
+        <div className="p-4 mx-auto max-w-[var(--breakpoint-2xl)] md:p-6">
+          {/* Barra de carregamento no topo */}
+      
+          {children}
         </div>
       </div>
-    </Providers>
+    </div>
   );
 }
