@@ -13,6 +13,7 @@ import {
 import { Edit, Trash2, Building2, MoreHorizontal, Eye } from "lucide-react";
 import { deleteClient } from "@/lib/clients";
 import { toast } from "sonner";
+import Link from "next/link";
 
 type ClientType = {
   id: string;
@@ -103,14 +104,14 @@ export default function ClientTable({
               </td>
               <td className="p-3">
                 {client.slug ? (
-                  <a
+                  <Link
                     href={`/preview/${client.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline text-sm"
                   >
                     Abrir link público
-                  </a>
+                  </Link>
                 ) : (
                   <span className="text-slate-400 text-sm">—</span>
                 )}
@@ -123,9 +124,6 @@ export default function ClientTable({
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onViewProfile(client.id)}>
-                      <Eye className="w-4 h-4 mr-2" /> Ver Perfil
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onEdit(client)}>
                       <Edit className="w-4 h-4 mr-2" /> Editar
                     </DropdownMenuItem>

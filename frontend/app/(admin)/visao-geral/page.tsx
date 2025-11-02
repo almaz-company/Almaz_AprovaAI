@@ -74,27 +74,31 @@ export default function Painel() {
   const [recentReviews, setRecentReviews] = useState<Review[]>([]);
 
   function downloadBlob(blob: Blob, filename: string) {
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = filename
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   async function handleExportPDF() {
     try {
-      const { jsPDF } = await import("jspdf")
-      await import("jspdf-autotable")
+      const { jsPDF } = await import("jspdf");
+      await import("jspdf-autotable");
 
-      const doc = new jsPDF()
-      const now = new Date()
-      doc.setFontSize(16)
-      doc.text("Relatório - Visão Geral", 14, 18)
-      doc.setFontSize(10)
-      doc.text(`Gerado em: ${format(now, "dd/MM/yyyy HH:mm", { locale: ptBR })}`, 14, 25)
+      const doc = new jsPDF();
+      const now = new Date();
+      doc.setFontSize(16);
+      doc.text("Relatório - Visão Geral", 14, 18);
+      doc.setFontSize(10);
+      doc.text(
+        `Gerado em: ${format(now, "dd/MM/yyyy HH:mm", { locale: ptBR })}`,
+        14,
+        25
+      );
 
       // Resumo
       const resumoLines = [
@@ -104,19 +108,19 @@ export default function Painel() {
         `Pendentes: ${statusCounts.pendente || 0}`,
         `Em revisão: ${statusCounts.em_revisao || 0}`,
         `Rejeitados: ${statusCounts.rejeitado || 0}`,
-      ]
-      doc.setFontSize(12)
-      doc.text("Resumo", 14, 35)
-      doc.setFontSize(10)
-      resumoLines.forEach((line, i) => doc.text(line, 14, 42 + i * 6))
+      ];
+      doc.setFontSize(12);
+      doc.text("Resumo", 14, 35);
+      doc.setFontSize(10);
+      resumoLines.forEach((line, i) => doc.text(line, 14, 42 + i * 6));
 
       // Posts Recentes
-      let startY = 42 + resumoLines.length * 6 + 6
-      doc.setFontSize(12)
-      doc.text("Posts Recentes", 14, startY)
-      startY += 4
+      let startY = 42 + resumoLines.length * 6 + 6;
+      doc.setFontSize(12);
+      doc.text("Posts Recentes", 14, startY);
+      startY += 4;
       // @ts-ignore - plugin injects autoTable into jsPDF instance
-      ;(doc as any).autoTable({
+      (doc as any).autoTable({
         startY,
         head: [["Título", "Status", "Rede", "Publicação"]],
         body: recentPosts.map((p) => [
@@ -124,21 +128,23 @@ export default function Painel() {
           p.status || "",
           p.social_network || "-",
           p.publish_date
-            ? format(new Date(p.publish_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+            ? format(new Date(p.publish_date), "dd/MM/yyyy HH:mm", {
+                locale: ptBR,
+              })
             : "-",
         ]),
         styles: { fontSize: 9 },
         headStyles: { fillColor: [27, 75, 124] },
         theme: "grid",
-      })
+      });
       // @ts-ignore
-      let afterY = (doc as any).lastAutoTable?.finalY || startY + 10
+      let afterY = (doc as any).lastAutoTable?.finalY || startY + 10;
 
       // Atividades Recentes
-      doc.setFontSize(12)
-      doc.text("Atividades Recentes", 14, afterY + 10)
+      doc.setFontSize(12);
+      doc.text("Atividades Recentes", 14, afterY + 10);
       // @ts-ignore
-      ;(doc as any).autoTable({
+      (doc as any).autoTable({
         startY: afterY + 14,
         head: [["Autor", "Cliente", "Mensagem", "Data"]],
         body: recentReviews.map((r) => [
@@ -146,25 +152,29 @@ export default function Painel() {
           clientNameByPostId[r.post_id] || "",
           r.message || "-",
           r.created_at
-            ? format(new Date(r.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+            ? format(new Date(r.created_at), "dd/MM/yyyy HH:mm", {
+                locale: ptBR,
+              })
             : "",
         ]),
         columnStyles: { 2: { cellWidth: 80 } },
         styles: { fontSize: 9, cellPadding: 2 },
         headStyles: { fillColor: [27, 75, 124] },
         theme: "grid",
-      })
+      });
 
-      doc.save("relatorio-visao-geral.pdf")
-      toast.success("PDF gerado com sucesso")
+      doc.save("relatorio-visao-geral.pdf");
+      toast.success("PDF gerado com sucesso");
     } catch (e: any) {
-      toast.error("Falha ao gerar PDF", { description: e?.message || String(e) })
+      toast.error("Falha ao gerar PDF", {
+        description: e?.message || String(e),
+      });
     }
   }
 
   async function handleExportWord() {
     try {
-      const docx = await import("docx")
+      const docx = await import("docx");
       const {
         Document,
         Packer,
@@ -175,15 +185,20 @@ export default function Painel() {
         TableCell,
         WidthType,
         TextRun,
-      } = docx as any
+      } = docx as any;
 
-      const now = new Date()
+      const now = new Date();
 
       const resumoPara = new Paragraph({
         children: [
-          new TextRun({ text: `Gerado em: ${format(now, "dd/MM/yyyy HH:mm", { locale: ptBR })}`, size: 20 }),
+          new TextRun({
+            text: `Gerado em: ${format(now, "dd/MM/yyyy HH:mm", {
+              locale: ptBR,
+            })}`,
+            size: 20,
+          }),
         ],
-      })
+      });
 
       const resumoList = [
         `Total de Posts: ${posts.length}`,
@@ -192,12 +207,18 @@ export default function Painel() {
         `Pendentes: ${statusCounts.pendente || 0}`,
         `Em revisão: ${statusCounts.em_revisao || 0}`,
         `Rejeitados: ${statusCounts.rejeitado || 0}`,
-      ].map((t) => new Paragraph({ children: [new TextRun({ text: t, size: 20 })] }))
+      ].map(
+        (t) => new Paragraph({ children: [new TextRun({ text: t, size: 20 })] })
+      );
 
       const postsRows = [
         new TableRow({
-          children: ["Título", "Status", "Rede", "Publicação"].map((h: string) =>
-            new TableCell({ children: [new Paragraph({ text: h })], width: { size: 25, type: WidthType.PERCENTAGE } })
+          children: ["Título", "Status", "Rede", "Publicação"].map(
+            (h: string) =>
+              new TableCell({
+                children: [new Paragraph({ text: h })],
+                width: { size: 25, type: WidthType.PERCENTAGE },
+              })
           ),
         }),
         ...recentPosts.map(
@@ -208,17 +229,28 @@ export default function Painel() {
                 p.status || "",
                 p.social_network || "-",
                 p.publish_date
-                  ? format(new Date(p.publish_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                  ? format(new Date(p.publish_date), "dd/MM/yyyy HH:mm", {
+                      locale: ptBR,
+                    })
                   : "-",
-              ].map((v) => new TableCell({ children: [new Paragraph({ text: String(v) })] })),
+              ].map(
+                (v) =>
+                  new TableCell({
+                    children: [new Paragraph({ text: String(v) })],
+                  })
+              ),
             })
         ),
-      ]
+      ];
 
       const reviewsRows = [
         new TableRow({
-          children: ["Autor", "Cliente", "Mensagem", "Data"].map((h: string) =>
-            new TableCell({ children: [new Paragraph({ text: h })], width: { size: 25, type: WidthType.PERCENTAGE } })
+          children: ["Autor", "Cliente", "Mensagem", "Data"].map(
+            (h: string) =>
+              new TableCell({
+                children: [new Paragraph({ text: h })],
+                width: { size: 25, type: WidthType.PERCENTAGE },
+              })
           ),
         }),
         ...recentReviews.map(
@@ -229,43 +261,61 @@ export default function Painel() {
                 clientNameByPostId[r.post_id] || "",
                 r.message || "-",
                 r.created_at
-                  ? format(new Date(r.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                  ? format(new Date(r.created_at), "dd/MM/yyyy HH:mm", {
+                      locale: ptBR,
+                    })
                   : "",
-              ].map((v) => new TableCell({ children: [new Paragraph({ text: String(v) })] })),
+              ].map(
+                (v) =>
+                  new TableCell({
+                    children: [new Paragraph({ text: String(v) })],
+                  })
+              ),
             })
         ),
-      ]
+      ];
 
       const doc = new Document({
         sections: [
           {
             properties: {},
             children: [
-              new Paragraph({ text: "Relatório - Visão Geral", heading: HeadingLevel.HEADING_1 }),
+              new Paragraph({
+                text: "Relatório - Visão Geral",
+                heading: HeadingLevel.HEADING_1,
+              }),
               resumoPara,
               ...resumoList,
               new Paragraph({ text: " " }),
-              new Paragraph({ text: "Posts Recentes", heading: HeadingLevel.HEADING_2 }),
+              new Paragraph({
+                text: "Posts Recentes",
+                heading: HeadingLevel.HEADING_2,
+              }),
               new Table({ rows: postsRows }),
               new Paragraph({ text: " " }),
-              new Paragraph({ text: "Atividades Recentes", heading: HeadingLevel.HEADING_2 }),
+              new Paragraph({
+                text: "Atividades Recentes",
+                heading: HeadingLevel.HEADING_2,
+              }),
               new Table({ rows: reviewsRows }),
             ],
           },
         ],
-      })
+      });
 
-      const blob = await (Packer as any).toBlob(doc)
-      downloadBlob(blob, "relatorio-visao-geral.docx")
-      toast.success("Word gerado com sucesso")
+      const blob = await (Packer as any).toBlob(doc);
+      downloadBlob(blob, "relatorio-visao-geral.docx");
+      toast.success("Word gerado com sucesso");
     } catch (e: any) {
-      toast.error("Falha ao gerar Word", { description: e?.message || String(e) })
+      toast.error("Falha ao gerar Word", {
+        description: e?.message || String(e),
+      });
     }
   }
 
   async function handleExportExcel() {
     try {
-      const XLSX: any = await import("xlsx")
+      const XLSX: any = await import("xlsx");
 
       const resumoSheetData = [
         ["Métrica", "Valor"],
@@ -275,8 +325,8 @@ export default function Painel() {
         ["Pendentes", statusCounts.pendente || 0],
         ["Em revisão", statusCounts.em_revisao || 0],
         ["Rejeitados", statusCounts.rejeitado || 0],
-      ]
-      const wsResumo = XLSX.utils.aoa_to_sheet(resumoSheetData)
+      ];
+      const wsResumo = XLSX.utils.aoa_to_sheet(resumoSheetData);
 
       const postsSheetData = [
         ["Título", "Status", "Rede", "Publicação"],
@@ -285,11 +335,13 @@ export default function Painel() {
           p.status || "",
           p.social_network || "-",
           p.publish_date
-            ? format(new Date(p.publish_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+            ? format(new Date(p.publish_date), "dd/MM/yyyy HH:mm", {
+                locale: ptBR,
+              })
             : "-",
         ]),
-      ]
-      const wsPosts = XLSX.utils.aoa_to_sheet(postsSheetData)
+      ];
+      const wsPosts = XLSX.utils.aoa_to_sheet(postsSheetData);
 
       const reviewsSheetData = [
         ["Autor", "Cliente", "Mensagem", "Data"],
@@ -298,20 +350,24 @@ export default function Painel() {
           clientNameByPostId[r.post_id] || "",
           r.message || "-",
           r.created_at
-            ? format(new Date(r.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+            ? format(new Date(r.created_at), "dd/MM/yyyy HH:mm", {
+                locale: ptBR,
+              })
             : "",
         ]),
-      ]
-      const wsReviews = XLSX.utils.aoa_to_sheet(reviewsSheetData)
+      ];
+      const wsReviews = XLSX.utils.aoa_to_sheet(reviewsSheetData);
 
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, wsResumo, "Resumo")
-      XLSX.utils.book_append_sheet(wb, wsPosts, "Posts Recentes")
-      XLSX.utils.book_append_sheet(wb, wsReviews, "Atividades Recentes")
-      XLSX.writeFile(wb, "relatorio-visao-geral.xlsx")
-      toast.success("Excel gerado com sucesso")
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, wsResumo, "Resumo");
+      XLSX.utils.book_append_sheet(wb, wsPosts, "Posts Recentes");
+      XLSX.utils.book_append_sheet(wb, wsReviews, "Atividades Recentes");
+      XLSX.writeFile(wb, "relatorio-visao-geral.xlsx");
+      toast.success("Excel gerado com sucesso");
     } catch (e: any) {
-      toast.error("Falha ao gerar Excel", { description: e?.message || String(e) })
+      toast.error("Falha ao gerar Excel", {
+        description: e?.message || String(e),
+      });
     }
   }
 
@@ -439,13 +495,28 @@ export default function Painel() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportPDF}
+              className="gap-2"
+            >
               <FileDown className="w-4 h-4" /> PDF
             </Button>
-            <Button variant="outline" size="sm" onClick={handleExportWord} className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportWord}
+              className="gap-2"
+            >
               <FileText className="w-4 h-4" /> Word
             </Button>
-            <Button variant="outline" size="sm" onClick={handleExportExcel} className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportExcel}
+              className="gap-2"
+            >
               <FileSpreadsheet className="w-4 h-4" /> Excel
             </Button>
           </div>
@@ -513,7 +584,7 @@ export default function Painel() {
         {/* Charts + Recent activity */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Posts por Rede */}
-          <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden">
+          <Card className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden">
             <CardHeader className="flex flex-col gap-1 pb-2">
               <CardTitle className="text-xl font-semibold text-[#1B4B7C] tracking-tight">
                 Distribuição por Rede
@@ -523,100 +594,73 @@ export default function Painel() {
               </p>
             </CardHeader>
 
-            <CardContent>
-              <div className="h-[420px] w-full flex items-center justify-center">
-                {networkData?.length ? (
-                  <div className="w-full h-full">
-                    <ChartContainer
-                      config={chartConfig}
-                      className="w-full h-full"
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        {networkData.length <= 5 ? (
-                          <PieChart>
-                            <Pie
-                              data={networkData}
-                              dataKey="value"
-                              nameKey="name"
-                              cx="50%"
-                              cy="50%"
-                              outerRadius={120}
-                              labelLine={false}
-                              label={({ name, percent }) =>
-                                `${name} ${(percent * 100).toFixed(0)}%`
-                              }
-                            >
-                              {networkData.map((entry, index) => {
-                                const color =
-                                  (chartConfig as any)[entry.name]?.color ||
-                                  "#94a3b8";
-                                return (
-                                  <Cell
-                                    key={`cell-${index}`}
-                                    fill={color}
-                                    className="transition-all duration-300 hover:opacity-80"
-                                  />
-                                );
-                              })}
-                            </Pie>
-                            <ChartTooltip
-                              content={<ChartTooltipContent nameKey="name" />}
-                              cursor={{ fill: "rgba(0,0,0,0.04)" }}
-                            />
-                            <ChartLegend
-                              content={<ChartLegendContent nameKey="name" />}
-                              layout="horizontal"
-                              align="center"
-                              verticalAlign="bottom"
-                            />
-                          </PieChart>
-                        ) : (
-                          <BarChart data={networkData} barCategoryGap="25%">
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              stroke="#e2e8f0"
-                            />
-                            <XAxis
-                              dataKey="name"
-                              tickLine={false}
-                              axisLine={false}
-                              tick={{ fill: "#475569", fontSize: 12 }}
-                            />
-                            <YAxis
-                              allowDecimals={false}
-                              tickLine={false}
-                              axisLine={false}
-                              tick={{ fill: "#475569", fontSize: 12 }}
-                            />
-                            <ChartTooltip
-                              content={<ChartTooltipContent nameKey="name" />}
-                              cursor={{ fill: "rgba(0,0,0,0.04)" }}
-                            />
-                            <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                              {networkData.map((entry, index) => {
-                                const color =
-                                  (chartConfig as any)[entry.name]?.color ||
-                                  "#3B82F6";
-                                return (
-                                  <Cell
-                                    key={`cell-bar-${index}`}
-                                    fill={color}
-                                    className="transition-all duration-300 hover:opacity-80"
-                                  />
-                                );
-                              })}
-                            </Bar>
-                          </BarChart>
-                        )}
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  </div>
-                ) : (
-                  <div className="text-slate-500 text-sm italic">
-                    Nenhum dado disponível para exibir o gráfico.
-                  </div>
-                )}
-              </div>
+            <CardContent className="p-0 px-0 pb-4">
+              {networkData?.length ? (
+                <div className="w-full h-[360px] flex items-center justify-center">
+                  <ChartContainer
+                    config={chartConfig}
+                    className="w-full h-full"
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={networkData}
+                        layout="vertical"
+                        barCategoryGap="30%"
+                        margin={{ top: 10, right: 30, left: 1, bottom: 10 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis
+                          type="number"
+                          allowDecimals={false}
+                          tickLine={false}
+                          axisLine={false}
+                          tick={{ fill: "#475569", fontSize: 12 }}
+                        />
+                        <YAxis
+                          type="category"
+                          dataKey="name"
+                          tickLine={false}
+                          axisLine={false}
+                          width={100}
+                          tick={{
+                            fill: "#475569",
+                            fontSize: 13,
+                            fontWeight: 500,
+                          }}
+                        />
+                        <ChartTooltip
+                          content={<ChartTooltipContent nameKey="name" />}
+                          cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                        />
+                        <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={34}>
+                          {networkData.map((entry, index) => {
+                            const color =
+                              (chartConfig as any)[entry.name]?.color ||
+                              "#3B82F6";
+                            return (
+                              <Cell
+                                key={`cell-bar-${index}`}
+                                fill={color}
+                                className="transition-all duration-300 hover:opacity-80"
+                              />
+                            );
+                          })}
+                        </Bar>
+                        <ChartLegend
+                          content={<ChartLegendContent nameKey="name" />}
+                          layout="horizontal"
+                          align="center"
+                          verticalAlign="bottom"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+              ) : (
+                <div className="text-slate-500 text-sm italic text-center py-10">
+                  Nenhum dado disponível para exibir o gráfico.
+                </div>
+              )}
             </CardContent>
           </Card>
 

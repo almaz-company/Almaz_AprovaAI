@@ -141,43 +141,9 @@ export default function ClientsPage() {
                 />
               </div>
 
-              <Select
-                value={filters.status}
-                onValueChange={(v) => handleFilterChange("status", v)}
-              >
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os Status</SelectItem>
-                  <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="inativo">Inativo</SelectItem>
-                  <SelectItem value="prospect">Prospect</SelectItem>
-                </SelectContent>
-              </Select>
+             
 
-              <Select
-                value={filters.industry}
-                onValueChange={(v) => handleFilterChange("industry", v)}
-              >
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Setor" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os Setores</SelectItem>
-                  <SelectItem value="tecnologia">Tecnologia</SelectItem>
-                  <SelectItem value="saude">Saúde</SelectItem>
-                  <SelectItem value="educacao">Educação</SelectItem>
-                  <SelectItem value="varejo">Varejo</SelectItem>
-                  <SelectItem value="servicos">Serviços</SelectItem>
-                  <SelectItem value="industria">Indústria</SelectItem>
-                  <SelectItem value="alimentacao">Alimentação</SelectItem>
-                  <SelectItem value="moda">Moda</SelectItem>
-                  <SelectItem value="imobiliario">Imobiliário</SelectItem>
-                  <SelectItem value="financeiro">Financeiro</SelectItem>
-                  <SelectItem value="outros">Outros</SelectItem>
-                </SelectContent>
-              </Select>
+             
             </div>
           </CardContent>
         </Card>

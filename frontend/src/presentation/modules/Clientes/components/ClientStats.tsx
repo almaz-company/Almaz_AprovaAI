@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Building2, TrendingUp, Users } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -87,34 +87,16 @@ const getLastUpdate = () => {
   // === Estatísticas gerais ===
   const stats = {
     total: clients.length,
-    active: clients.filter((c) => c.status === "ativo").length,
-    prospects: clients.filter((c) => c.status === "prospect").length,
   };
 
   const statsCards = [
     {
-      title: "Total de Clientes",
+      title: "Clientes Ativos",
       value: stats.total,
       icon: Building2,
       bgColor: "bg-[#053665]",
       bgLight: "bg-[#053665]/10",
       textColor: "text-[#053665]",
-    },
-    {
-      title: "Clientes Ativos",
-      value: stats.active,
-      icon: Users,
-      bgColor: "bg-[#a7c958]",
-      bgLight: "bg-[#a7c958]/10",
-      textColor: "text-[#a7c958]",
-    },
-    {
-      title: "Prospects",
-      value: stats.prospects,
-      icon: TrendingUp,
-      bgColor: "bg-[#052244]",
-      bgLight: "bg-[#052244]/10",
-      textColor: "text-[#052244]",
     },
   ];
 
@@ -169,20 +151,7 @@ const getLastUpdate = () => {
         </Card>
       ))}
 
-      {/* Última atualização (Card extra opcional) */}
-      <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-md rounded-2xl">
-        <CardContent className="p-6 flex flex-col justify-center items-start">
-          <p className="text-xs font-semibold text-slate-500 uppercase mb-1">
-            Última atualização
-          </p>
-          <p className="text-sm font-medium text-slate-800">
-            {getLastUpdate()}
-          </p>
-          <p className="text-xs text-slate-500 mt-1">
-            {currentTime.toLocaleTimeString("pt-BR")}
-          </p>
-        </CardContent>
-      </Card>
+    
     </div>
   );
 }

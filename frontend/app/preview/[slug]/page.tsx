@@ -352,28 +352,29 @@ export default function PublicClientPreviewPage() {
             <div className="lg:col-span-2">
               {/* Mídia */}
               <div className="relative bg-slate-200 rounded-xl overflow-hidden min-h-[420px] flex items-center justify-center shadow-sm">
-  {selected?.media_url ? (
-    isVideo ? (
-      <Video
-        src={selected.media_url}
-        controls
-        autoPlay
-        playsInline
-        muted
-        className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
-      />
-    ) : (
-      <img
-        src={selected.media_url}
-        alt="media preview"
-        className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
-      />
-    )
-  ) : (
-    <div className="text-slate-500 text-sm font-medium">Sem mídia</div>
-  )}
-</div>
-
+                {selected?.media_url ? (
+                  isVideo ? (
+                    <Video
+                      src={selected.media_url}
+                      controls
+                      autoPlay
+                      playsInline
+                      muted
+                      className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
+                    />
+                  ) : (
+                    <img
+                      src={selected.media_url}
+                      alt="media preview"
+                      className="w-full h-auto max-h-[85vh] object-contain rounded-xl"
+                    />
+                  )
+                ) : (
+                  <div className="text-slate-500 text-sm font-medium">
+                    Sem mídia
+                  </div>
+                )}
+              </div>
 
               {/* Dados */}
               <div className="space-y-4 mt-6">
