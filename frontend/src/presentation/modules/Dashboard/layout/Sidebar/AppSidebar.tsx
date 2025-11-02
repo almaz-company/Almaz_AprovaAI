@@ -309,7 +309,7 @@ const AppSidebar = () => {
           className="w-full justify-start gap-2"
           onClick={async () => {
             await signOut();
-            router.replace("/login");
+            router.replace("/");
           }}
         >
           <LogOut className="w-4 h-4" />
