@@ -31,7 +31,7 @@ export const navItems: NavItem[] = [
         pro: false 
       },
       { name: 
-        "Calendario", 
+        "Calendário ", 
         path: "/calendario", 
         pro: false 
       },
