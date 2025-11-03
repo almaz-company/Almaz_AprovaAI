@@ -245,7 +245,7 @@ export function ListView({
                   <div className="ml-auto hidden sm:flex items-center gap-6">
                     <div className="text-right">
                       <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                        Roteiro
+                        Tema
                       </div>
                       <Badge
                         variant="outline"
@@ -259,7 +259,7 @@ export function ListView({
                     </div>
                     <div className="text-right">
                       <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                        Conteúdo
+                        Visual
                       </div>
                       <Badge
                         variant="outline"
