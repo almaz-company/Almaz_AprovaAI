@@ -275,7 +275,6 @@ export function ListView({
                 </div>
 
                 <div className="flex items-center gap-4">
-                  {/* Informações da postagem */}
                   <div className="flex items-center gap-4 text-sm text-slate-500">
                     {post.client_name && (
                       <Badge
