@@ -131,7 +131,7 @@ const stageLabel = (stage: StageStatus) => {
     case "rejeitado":
       return "REJEITADO";
     case "em_revisao":
-      return "AJUSTE";
+      return "EM REVISÃO";
     default:
       return String(stage).toUpperCase();
   }

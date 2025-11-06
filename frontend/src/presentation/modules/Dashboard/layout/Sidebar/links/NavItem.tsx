@@ -12,11 +12,11 @@ export const navItems: NavItem[] = [
     ],
   },
   {
-    name: "Automação",
+    name: "Clientes",
     icon: <Users />,
     subItems: [
       { name: 
-        "Clientes", 
+        "Cadastro", 
         path: "/clientes", 
         pro: false 
       },

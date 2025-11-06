@@ -82,7 +82,7 @@ const getStatusConfig = (status: string) => {
       color: "bg-red-100 text-red-800 border-red-200",
       icon: XCircle,
     },
-    em_revisao: {
+    em_ajuste: {
       color: "bg-blue-100 text-blue-800 border-blue-200",
       icon: AlertCircle,
     },
